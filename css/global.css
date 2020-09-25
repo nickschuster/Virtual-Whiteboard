@@ -1,0 +1,13 @@
+/* Main stylesheet for Virtual Whiteboard */
+
+html {
+    background-color: #ececec;
+}
+
+#canvas {
+    position: absolute;
+    border: 1px solid black;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
