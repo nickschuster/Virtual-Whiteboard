@@ -4,10 +4,6 @@ window.onload = () => {
 
     // Reference to the canvas for drawing on.
     let canvas = document.getElementById("canvas");
-
-    canvas.setAttribute("height", $(window).height()*0.9);
-    canvas.setAttribute("width", $(window).width()*0.9);
-
     let context = canvas.getContext('2d');
 
     // Arrays that contain a list of mouse positions that need to be drawn.
@@ -19,6 +15,14 @@ window.onload = () => {
     // E.g. dont draw if the mouse is outside of the canvas.
     let paint;
 
+    // Resize the canvas.
+    function resize() {
+        context.canvas.width = window.innerWidth;
+        context.canvas.height = window.innerHeight;
+
+        reDraw();
+    }
+
     // Add mouse positions to drawing arrays.
     function addClick(mouseX, mouseY, dragging) {
         clickX.push(mouseX);
@@ -28,8 +32,6 @@ window.onload = () => {
 
     // Draw all the positions to be drawn to the canvas.
     function reDraw() {
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-
         context.strokeStyle = "#0076ff";
         context.lineJoin = "round";
         context.lineWidth = 5;
@@ -48,12 +50,13 @@ window.onload = () => {
 
     }
 
+    // Resize canvas when window changes size.
+    window.addEventListener("resize", resize);
+
     // Listener for mousedown event. Start drawing.
     $('#canvas').on("mousedown", (event) => {
         let mouseX = event.clientX - canvas.offsetLeft;
         let mouseY = event.clientY - canvas.offsetTop;
-        console.log(canvas.offsetLeft, canvas.offsetTop);
-        console.log(event.clientX, event.clientY);
 
         paint = true;
         addClick(mouseX, mouseY, false);
