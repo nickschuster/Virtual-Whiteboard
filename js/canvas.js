@@ -3,7 +3,12 @@
 window.onload = () => {
 
     // Reference to the canvas for drawing on.
-    let context = document.getElementById("canvas").getContext('2d');
+    let canvas = document.getElementById("canvas");
+
+    canvas.setAttribute("height", $(window).height()*0.9);
+    canvas.setAttribute("width", $(window).width()*0.9);
+
+    let context = canvas.getContext('2d');
 
     // Arrays that contain a list of mouse positions that need to be drawn.
     let clickX = [];
@@ -29,9 +34,8 @@ window.onload = () => {
         context.lineJoin = "round";
         context.lineWidth = 5;
 
-        console.log(context);
-
         for(let i = 0; i < clickX.length; i++) {
+            context.beginPath();
             if(clickDrag[i] && i) {
                 context.moveTo(clickX[i-1], clickY[i-1]);
             } else {
@@ -39,14 +43,17 @@ window.onload = () => {
             }
             context.lineTo(clickX[i], clickY[i]);
             context.stroke();
+            context.closePath();
         }
 
     }
 
     // Listener for mousedown event. Start drawing.
     $('#canvas').on("mousedown", (event) => {
-        let mouseX = event.pageX - this.offsetLeft;
-        let mouseY = event.pageY - this.offsetTop;
+        let mouseX = event.clientX - canvas.offsetLeft;
+        let mouseY = event.clientY - canvas.offsetTop;
+        console.log(canvas.offsetLeft, canvas.offsetTop);
+        console.log(event.clientX, event.clientY);
 
         paint = true;
         addClick(mouseX, mouseY, false);
@@ -57,8 +64,8 @@ window.onload = () => {
     // start adding drag locations to be drawn.
     $('#canvas').on("mousemove", (event) => {
         if(paint){
-            let mouseX = event.pageX - this.offsetLeft;
-            let mouseY = event.pageY - this.offsetTop;
+            let mouseX = event.pageX - canvas.offsetLeft;
+            let mouseY = event.pageY - canvas.offsetTop;
 
             addClick(mouseX, mouseY, true);
             reDraw();
