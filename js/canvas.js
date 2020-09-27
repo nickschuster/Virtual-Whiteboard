@@ -11,14 +11,20 @@ window.onload = () => {
     let clickY = [];
     let clickDrag = [];
 
+    // Contain the current mouse position relative to the window.
+    let mouseX;
+    let mouseY;
+
     // Variable that tells drawing functions if it should be drawing right now.
     // E.g. dont draw if the mouse is outside of the canvas.
     let paint;
 
+    resize();
+
     // Resize the canvas.
     function resize() {
-        context.canvas.width = window.innerWidth;
-        context.canvas.height = window.innerHeight;
+        context.canvas.width = window.innerWidth*0.9;
+        context.canvas.height = window.innerHeight*0.9;
 
         reDraw();
     }
@@ -51,15 +57,35 @@ window.onload = () => {
     }
 
     // Resize canvas when window changes size.
-    window.addEventListener("resize", resize);
+    //window.addEventListener("resize", resize);
+
+    // If the window is resized and a scroll ocours.
+    $(window).on("scroll", (event) => {
+        if(lastScrolledLeft != $(document).scrollLeft()){
+            mouseX -= lastScrolledLeft;
+            lastScrolledLeft = $(document).scrollLeft();
+            mouseX += lastScrolledLeft;
+        }
+        if(lastScrolledTop != $(document).scrollTop()){
+            mouseY -= lastScrolledTop;
+            lastScrolledTop = $(document).scrollTop();
+            mouseY += lastScrolledTop;
+        }
+    });
+
+    // Keep track of the mouse position.
+    $(document).on("mousemove", (event) => {
+        mouseX = event.pageX;
+        mouseY = event.pageY;
+    });
 
     // Listener for mousedown event. Start drawing.
     $('#canvas').on("mousedown", (event) => {
-        let mouseX = event.clientX - canvas.offsetLeft;
-        let mouseY = event.clientY - canvas.offsetTop;
+        let paintX = mouseX - canvas.offsetLeft;
+        let paintY = mouseY - canvas.offsetTop;
 
         paint = true;
-        addClick(mouseX, mouseY, false);
+        addClick(paintX, paintY, false);
         reDraw();
     });
 
@@ -67,10 +93,10 @@ window.onload = () => {
     // start adding drag locations to be drawn.
     $('#canvas').on("mousemove", (event) => {
         if(paint){
-            let mouseX = event.pageX - canvas.offsetLeft;
-            let mouseY = event.pageY - canvas.offsetTop;
+            let paintX = mouseX - canvas.offsetLeft;
+            let paintY = mouseY - canvas.offsetTop;
 
-            addClick(mouseX, mouseY, true);
+            addClick(paintX, paintY, true);
             reDraw();
         }
     });
