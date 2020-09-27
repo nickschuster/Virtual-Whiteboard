@@ -1,10 +1,12 @@
 // Main javascript file for Virtual Whiteboard.
-import Canvas from './canvas';
+import Canvas from './canvas.js';
 
 window.onload = () => {
 
     let canvasList = [];
     let activeCanvas;
+    let lastScrolledLeft = 0;
+    let lastScrolledTop = 0;
     let mouseX;
     let mouseY;
     let paint;
@@ -21,6 +23,8 @@ window.onload = () => {
         activeCanvas = newCanvasObject;
         activeCanvas.resize();
     }
+
+    $('#create-canvas').on("click", createCanvas);
 
     // Update mouse position in case of scroll.
     $(window).on("scroll", (event) => {
@@ -43,7 +47,7 @@ window.onload = () => {
     });
 
     // Listener for mousedown event. Start drawing.
-    $('canvas').on("mousedown", (event) => {
+    $(document).on("mousedown", "canvas", (event) => {
         let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
         let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
 
@@ -54,7 +58,7 @@ window.onload = () => {
 
     // Listener for mousemove event. If the mouse is being clicked
     // start adding drag locations to be drawn.
-    $('canvas').on("mousemove", (event) => {
+    $(document).on("mousemove", "canvas", (event) => {
         if(paint){
             let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
             let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
@@ -66,7 +70,7 @@ window.onload = () => {
 
     // Listener for mouseleave and mouseup. Stop drawing when mouse
     // stops being on canvas or stops being clicked.
-    $('canvas').on("mouseleave mouseup", (event) => {
+    $(document).on("mouseup mouseleave", "canvas", (event) => {
         paint = false;
     });
 
