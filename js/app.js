@@ -15,15 +15,35 @@ window.onload = () => {
     function createCanvas() {
         let root = document.getElementById("root");
         let newCanvas = document.createElement("canvas");
-        newCanvas.setAttribute("id", "canvasOne");
-        root.appendChild(newCanvas);
+        let switchButton = document.createElement("button");
+        let canvasId = "canvas" + canvasList.length;
 
-        let newCanvasObject = new Canvas("canvasOne");
+        switchButton.setAttribute("id", canvasId);
+        switchButton.setAttribute("class", "switch-canvas");
+        switchButton.textContent = canvasId;
+        newCanvas.setAttribute("id", canvasId);
+        root.appendChild(newCanvas);
+        root.appendChild(switchButton);
+
+        let newCanvasObject = new Canvas(canvasId);
         canvasList.push(newCanvasObject);
         activeCanvas = newCanvasObject;
         activeCanvas.resize();
     }
 
+    function switchCanvas(event) {
+        canvasList.forEach(canvas => {
+            if(canvas.canvasId == event.target.getAttribute("id")) {
+                activeCanvas = canvas
+                canvas.context.canvas.style.display = "block";
+            } else {
+                canvas.context.canvas.style.display = "none";
+            }
+        })
+    }
+
+    // HTML Button listeners.
+    $(document).on("click", "button.switch-canvas", switchCanvas);
     $('#create-canvas').on("click", createCanvas);
 
     // Update mouse position in case of scroll.

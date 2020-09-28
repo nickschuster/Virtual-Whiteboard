@@ -3,6 +3,7 @@ export default class Canvas {
     constructor(canvasId) {
         // Where to draw.
         this.context = document.getElementById(canvasId).getContext('2d');
+        this.canvasId = canvasId;
 
         // Positions to draw.
         this.clickX = [];
