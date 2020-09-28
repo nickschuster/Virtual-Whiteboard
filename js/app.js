@@ -13,33 +13,46 @@ window.onload = () => {
 
     // Button listener for creating a new canvas.
     function createCanvas() {
-        let root = document.getElementById("root");
+        // Get and create the required elements.
+        let canvasContainer = document.getElementById("canvas-container");
+        let buttonContainer = document.getElementById("button-container");
         let newCanvas = document.createElement("canvas");
         let switchButton = document.createElement("button");
         let canvasId = "canvas" + canvasList.length;
 
+        // Set attributes.
         switchButton.setAttribute("id", canvasId);
         switchButton.setAttribute("class", "switch-canvas");
         switchButton.textContent = canvasId;
         newCanvas.setAttribute("id", canvasId);
-        root.appendChild(newCanvas);
-        root.appendChild(switchButton);
 
+        // Append the elements to the DOM.
+        canvasContainer.appendChild(newCanvas);
+        buttonContainer.appendChild(switchButton);
+
+        // Add the canvas to the list of active canvases
         let newCanvasObject = new Canvas(canvasId);
         canvasList.push(newCanvasObject);
         activeCanvas = newCanvasObject;
         activeCanvas.resize();
+
+        // Hide all other canvases.
+        hideAllExceptOne(canvasId);
     }
 
-    function switchCanvas(event) {
+    function hideAllExceptOne(canvasToShow) {
         canvasList.forEach(canvas => {
-            if(canvas.canvasId == event.target.getAttribute("id")) {
+            if(canvas.canvasId == canvasToShow) {
                 activeCanvas = canvas
                 canvas.context.canvas.style.display = "block";
             } else {
                 canvas.context.canvas.style.display = "none";
             }
         })
+    }
+
+    function switchCanvas(event) {
+        hideAllExceptOne(event.target.getAttribute("id"));
     }
 
     // HTML Button listeners.
@@ -62,12 +75,18 @@ window.onload = () => {
 
     // Keep track of the mouse position.
     $(document).on("mousemove", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
         mouseX = event.pageX;
         mouseY = event.pageY;
     });
 
     // Listener for mousedown event. Start drawing.
     $(document).on("mousedown", "canvas", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
         let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
         let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
 
@@ -79,6 +98,8 @@ window.onload = () => {
     // Listener for mousemove event. If the mouse is being clicked
     // start adding drag locations to be drawn.
     $(document).on("mousemove", "canvas", (event) => {
+        event.preventDefault();
+
         if(paint){
             let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
             let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
@@ -91,115 +112,37 @@ window.onload = () => {
     // Listener for mouseleave and mouseup. Stop drawing when mouse
     // stops being on canvas or stops being clicked.
     $(document).on("mouseup mouseleave", "canvas", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
         paint = false;
     });
 
+    // Same listeners as above but for mobile.
+    $(document).on("touchstart", "canvas", (event) => {
+        let touch = event.touches[0];
+        let mouseEvent = new MouseEvent("mousedown", {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+    })
 
+    $(document).on("touchmove", "canvas", (event) => {
+        let touch = event.touches[0];
+        let mouseEvent = new MouseEvent("mousemove", {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+    })
 
-    /// TEST ///
-    /*
-    // Reference to the canvas for drawing on.
-    let canvas = document.getElementById("canvas");
-    let context = canvas.getContext('2d');
-
-    // Arrays that contain a list of mouse positions that need to be drawn.
-    let clickX = [];
-    let clickY = [];
-    let clickDrag = [];
-
-    // Contain the current mouse position relative to the window.
-    let mouseX;
-    let mouseY;
-
-    // Variable that tells drawing functions if it should be drawing right now.
-    // E.g. dont draw if the mouse is outside of the canvas.
-    let paint;
-
-    resize();
-
-    // Resize the canvas.
-    function resize() {
-        context.canvas.width = window.innerWidth*0.9;
-        context.canvas.height = window.innerHeight*0.9;
-
-        reDraw();
-    }
-
-    // Add mouse positions to drawing arrays.
-    function addClick(mouseX, mouseY, dragging) {
-        clickX.push(mouseX);
-        clickY.push(mouseY);
-        clickDrag.push(dragging);
-    }
-
-    // Draw all the positions to be drawn to the canvas.
-    function reDraw() {
-        context.strokeStyle = "#0076ff";
-        context.lineJoin = "round";
-        context.lineWidth = 5;
-
-        for(let i = 0; i < clickX.length; i++) {
-            context.beginPath();
-            if(clickDrag[i] && i) {
-                context.moveTo(clickX[i-1], clickY[i-1]);
-            } else {
-                context.moveTo(clickX[i], clickY[i]);
-            }
-            context.lineTo(clickX[i], clickY[i]);
-            context.stroke();
-            context.closePath();
-        }
-
-    }
-
-    // Resize canvas when window changes size.
-    //window.addEventListener("resize", resize);
-
-    // If the window is resized and a scroll ocours.
-    $(window).on("scroll", (event) => {
-        if(lastScrolledLeft != $(document).scrollLeft()){
-            mouseX -= lastScrolledLeft;
-            lastScrolledLeft = $(document).scrollLeft();
-            mouseX += lastScrolledLeft;
-        }
-        if(lastScrolledTop != $(document).scrollTop()){
-            mouseY -= lastScrolledTop;
-            lastScrolledTop = $(document).scrollTop();
-            mouseY += lastScrolledTop;
-        }
-    });
-
-    // Keep track of the mouse position.
-    $(document).on("mousemove", (event) => {
-        mouseX = event.pageX;
-        mouseY = event.pageY;
-    });
-
-    // Listener for mousedown event. Start drawing.
-    $('#canvas').on("mousedown", (event) => {
-        let paintX = mouseX - canvas.offsetLeft;
-        let paintY = mouseY - canvas.offsetTop;
-
-        paint = true;
-        addClick(paintX, paintY, false);
-        reDraw();
-    });
-
-    // Listener for mousemove event. If the mouse is being clicked
-    // start adding drag locations to be drawn.
-    $('#canvas').on("mousemove", (event) => {
-        if(paint){
-            let paintX = mouseX - canvas.offsetLeft;
-            let paintY = mouseY - canvas.offsetTop;
-
-            addClick(paintX, paintY, true);
-            reDraw();
-        }
-    });
-
-    // Listener for mouseleave and mouseup. Stop drawing when mouse
-    // stops being on canvas or stops being clicked.
-    $('#canvas').on("mouseleave mouseup", (event) => {
-        paint = false;
-    });*/
+    $(document).on("touchend", "canvas", (event) => {
+        let touch = event.touches[0];
+        let mouseEvent = new MouseEvent("mouseup", {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+    })
 };
