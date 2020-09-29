@@ -55,12 +55,7 @@ window.onload = () => {
         hideAllExceptOne(event.target.getAttribute("id"));
     }
 
-    // HTML Button listeners.
-    $(document).on("click", "button.switch-canvas", switchCanvas);
-    $('#create-canvas').on("click", createCanvas);
-
-    // Update mouse position in case of scroll.
-    $(window).on("scroll", (event) => {
+    function updateScrollOffset(event) {
         if(lastScrolledLeft != $(document).scrollLeft()){
             mouseX -= lastScrolledLeft;
             lastScrolledLeft = $(document).scrollLeft();
@@ -71,35 +66,28 @@ window.onload = () => {
             lastScrolledTop = $(document).scrollTop();
             mouseY += lastScrolledTop;
         }
-    });
+    }
 
-    // Keep track of the mouse position.
-    $(document).on("mousemove", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
+    function updateMousePosition(event) {
         mouseX = event.pageX;
         mouseY = event.pageY;
-    });
+    }
 
-    // Listener for mousedown event. Start drawing.
-    $(document).on("mousedown", "canvas", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+    function updateMousePositionManual(xPos, yPos) {
+        mouseY = yPos;
+        mouseX = xPos;
+    }
 
+    function startPaint(event) {
         let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
         let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
 
         paint = true;
         activeCanvas.addClick(paintX, paintY, false);
         activeCanvas.reDraw();
-    });
+    }
 
-    // Listener for mousemove event. If the mouse is being clicked
-    // start adding drag locations to be drawn.
-    $(document).on("mousemove", "canvas", (event) => {
-        event.preventDefault();
-
+    function trackPaint(event) {
         if(paint){
             let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
             let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
@@ -107,42 +95,74 @@ window.onload = () => {
             activeCanvas.addClick(paintX, paintY, true);
             activeCanvas.reDraw();
         }
+    }
+
+    function stopPaint(event) {
+        paint = false
+    }
+
+    // HTML Button listeners.
+    $(document).on("click", "button.switch-canvas", switchCanvas);
+    $('#create-canvas').on("click", createCanvas);
+
+    // Update mouse position in case of scroll.
+    $(window).on("scroll", (event) => {
+        updateScrollOffset(event)
+    });
+
+    // Keep track of the mouse position.
+    $(document).on("mousemove", (event) => {
+        event.preventDefault();
+
+        updateMousePosition(event);
+    });
+
+    // Listener for mousedown event. Start drawing.
+    $(document).on("mousedown", "canvas", (event) => {
+        event.preventDefault();
+
+        startPaint(event);
+    });
+
+    // Listener for mousemove event. If the mouse is being clicked
+    // start adding drag locations to be drawn.
+    $(document).on("mousemove", "canvas", (event) => {
+        event.preventDefault();
+
+        trackPaint(event);
     });
 
     // Listener for mouseleave and mouseup. Stop drawing when mouse
     // stops being on canvas or stops being clicked.
     $(document).on("mouseup mouseleave", "canvas", (event) => {
         event.preventDefault();
-        event.stopPropagation();
 
-        paint = false;
+        stopPaint(event);
     });
+
+    // MOVE THEM TO SEPERATE FUNCTIONS.
 
     // Same listeners as above but for mobile.
     $(document).on("touchstart", "canvas", (event) => {
-        let touch = event.touches[0];
-        let mouseEvent = new MouseEvent("mousedown", {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+        console.log("here")
+
+        event.preventDefault();
+
+        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        startPaint(event);
     })
 
     $(document).on("touchmove", "canvas", (event) => {
-        let touch = event.touches[0];
-        let mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+        event.preventDefault();
+        console.log("here2")
+
+        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        trackPaint(event);
     })
 
     $(document).on("touchend", "canvas", (event) => {
-        let touch = event.touches[0];
-        let mouseEvent = new MouseEvent("mouseup", {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        activeCanvas.context.canvas.dispatchEvent(mouseEvent);
+        event.preventDefault();
+
+        stopPaint();
     })
 };
