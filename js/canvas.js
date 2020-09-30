@@ -9,10 +9,18 @@ export default class Canvas {
         this.clickX = [];
         this.clickY = [];
         this.clickDrag = [];
+
+        // Canvas size.
+        this.width = window.innerWidth*0.9;
+        this.height = window.innerHeight*0.9;
     }
 
     // Add a click to the position arrays.
     addClick(mouseX, mouseY, dragging) {
+        if(mouseY >= this.height-50 || mouseX >= this.width-50) {
+            this.newSizeNeeded();
+        }
+
         this.clickX.push(mouseX);
         this.clickY.push(mouseY);
         this.clickDrag.push(dragging);
@@ -37,9 +45,15 @@ export default class Canvas {
 
     }
 
+    newSizeNeeded() {
+        this.width = this.width * 1.5;
+        this.height = this.height * 1.5;
+        this.resize();
+    }
+
     resize() {
-        this.context.canvas.width = window.innerWidth*0.9;
-        this.context.canvas.height = window.innerHeight*0.9;
+        this.context.canvas.width = this.width;
+        this.context.canvas.height = this.height;
 
         this.reDraw();
     }

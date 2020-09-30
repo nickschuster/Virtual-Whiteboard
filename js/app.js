@@ -140,12 +140,8 @@ window.onload = () => {
         stopPaint(event);
     });
 
-    // MOVE THEM TO SEPERATE FUNCTIONS.
-
     // Same listeners as above but for mobile.
     $(document).on("touchstart", "canvas", (event) => {
-        console.log("here")
-
         event.preventDefault();
 
         updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
@@ -154,7 +150,6 @@ window.onload = () => {
 
     $(document).on("touchmove", "canvas", (event) => {
         event.preventDefault();
-        console.log("here2")
 
         updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
         trackPaint(event);
