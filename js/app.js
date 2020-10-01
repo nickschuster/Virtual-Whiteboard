@@ -3,12 +3,19 @@ import Canvas from './canvas.js';
 
 window.onload = () => {
 
+    // Canvas control.
     let canvasList = [];
     let activeCanvas;
+
+    // Mouse/Finger scrolling.
     let lastScrolledLeft = 0;
     let lastScrolledTop = 0;
+
+    // Mouse/Finger position.
     let mouseX;
     let mouseY;
+
+    // When to record clicks for painting.
     let paint;
 
     // Button listener for creating a new canvas.
@@ -142,17 +149,48 @@ window.onload = () => {
 
     // Same listeners as above but for mobile.
     $(document).on("touchstart", "canvas", (event) => {
-        event.preventDefault();
+        if(event.touches.length > 1) {
+            let x = 0;
+            let y = 0;
 
-        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        startPaint(event);
+            event.touches.forEach(touch => {
+                x += touch.screenX;
+                y += touch.screenY;
+            })
+
+            lastScrolledLeft = x/event.touches.length;
+            lastScrolledTop = y/event.touches.length;
+        } else {
+            updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+            startPaint(event);
+        }
+
     })
 
     $(document).on("touchmove", "canvas", (event) => {
-        event.preventDefault();
+        if(event.touches.length > 1) {
+            let x = 0;
+            let y = 0;
 
-        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        trackPaint(event);
+            event.touches.forEach(touch => {
+                x += touch.screenX;
+                y += touch.screenY;
+            })
+
+            let moveX = x/event.touches.length - lastScrolledLeft;
+            let moveY = y/event.touches.length - lastScrolledTop;
+
+            let newX = $('#root').offset().left + moveX;
+            let newY = $('#root').offset().top + moveY;
+
+            $('#root').offset({top: newY, left: newX});
+
+            lastScrolledLeft = x/event.touches.length;
+            lastScrolledTop = y/event.touches.length;
+        } else {
+            updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+            trackPaint(event);
+        }
     })
 
     $(document).on("touchend", "canvas", (event) => {
