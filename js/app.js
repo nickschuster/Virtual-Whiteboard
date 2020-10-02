@@ -8,7 +8,7 @@ window.onload = () => {
     let activeCanvas;
 
     // Active tool.
-    let activeTool;
+    // let activeTool;
 
     // Mouse/Finger scrolling.
     let lastScrolledLeft = 0;
@@ -125,12 +125,11 @@ window.onload = () => {
     }
 
     // Switch the currently active tool.
-    function switchTool(event) {
-        activeTool = event.target.getAttribute("id");
-        console.log(activeTool)
-    }
+    // function switchTool(event) {
+    //     activeTool = event.target.getAttribute("id");
+    // }
 
-    $(document).on("click", "button.tool", switchTool)
+    // $(document).on("click", "button.tool", switchTool)
 
     // HTML switch canvas button listeners.
     $(document).on("click", "button.switch-canvas", switchCanvas);
@@ -176,30 +175,15 @@ window.onload = () => {
     // Same listeners as above but for mobile.
     $(document).on("touchstart", "canvas", (event) => {
         updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        if(activeTool == "grab-tool") {
-            $("#root").css("touch-action", "");
-        } else if(activeTool == "draw-tool") {
-            $("#root").css("touch-action", "none");
-            startPaint(event);
-        }
+        startPaint(event);
     })
 
     $(document).on("touchmove", "canvas", (event) => {
         updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        if(activeTool == "grab-tool") {
-            $("#root").css("touch-action", "");
-        } else if(activeTool == "draw-tool") {
-            $("#root").css("touch-action", "none");
-            trackPaint(event);
-        }
+        trackPaint(event);
     })
 
     $(document).on("touchend", "canvas", (event) => {
-        if(activeTool == "grab-tool") {
-            $("#root").css("touch-action", "");
-        } else if(activeTool == "draw-tool") {
-            $("#root").css("touch-action", "none");
-            stopPaint(event);
-        }
+        stopPaint(event);
     })
 };
