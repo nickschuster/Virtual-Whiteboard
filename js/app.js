@@ -1,7 +1,7 @@
 // Main javascript file for Virtual Whiteboard.
 import Canvas from './canvas.js';
 
-window.onload = () => {
+const startApp = () => {
 
     // Canvas control.
     let canvasList = [];
@@ -187,3 +187,5 @@ window.onload = () => {
         stopPaint(event);
     })
 };
+
+export default startApp;

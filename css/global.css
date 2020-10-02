@@ -18,3 +18,34 @@ canvas {
     z-index: 1000;
     overflow: hidden;
 }
+
+#login {
+    display: block;
+    z-index: 1010;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+#room-controls {
+    display: block;
+    position: fixed;
+    z-index: 1200;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.room-control {
+    margin: 0;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+    padding: 20px;
+    font-size: 30px;
+}
