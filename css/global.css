@@ -9,4 +9,13 @@ canvas {
     padding: 0;
     margin: auto;
     border: 1px solid black;
+    overflow: auto;
+}
+
+#controls {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    overflow: hidden;
 }

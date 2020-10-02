@@ -7,6 +7,9 @@ window.onload = () => {
     let canvasList = [];
     let activeCanvas;
 
+    // Active tool.
+    let activeTool;
+
     // Mouse/Finger scrolling.
     let lastScrolledLeft = 0;
     let lastScrolledTop = 0;
@@ -47,10 +50,13 @@ window.onload = () => {
         hideAllExceptOne(canvasId);
     }
 
+    // Hide all canvases except the one specified.
+    //
+    // Takes an ID of a canvas to show.
     function hideAllExceptOne(canvasToShow) {
         canvasList.forEach(canvas => {
             if(canvas.canvasId == canvasToShow) {
-                activeCanvas = canvas
+                activeCanvas = canvas;
                 canvas.context.canvas.style.display = "block";
             } else {
                 canvas.context.canvas.style.display = "none";
@@ -58,10 +64,15 @@ window.onload = () => {
         })
     }
 
+    // Switch to a specific canvas.
+    //
+    // Takes a click event.
     function switchCanvas(event) {
         hideAllExceptOne(event.target.getAttribute("id"));
     }
 
+    // Keep track of scroll position to make sure that
+    // the drawing position is accurate.
     function updateScrollOffset(event) {
         if(lastScrolledLeft != $(document).scrollLeft()){
             mouseX -= lastScrolledLeft;
@@ -75,16 +86,19 @@ window.onload = () => {
         }
     }
 
+    // Update the current mouse position.
     function updateMousePosition(event) {
         mouseX = event.pageX;
         mouseY = event.pageY;
     }
 
+    // Manually specify the current mouse position.
     function updateMousePositionManual(xPos, yPos) {
         mouseY = yPos;
         mouseX = xPos;
     }
 
+    // Record a click and start painting.
     function startPaint(event) {
         let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
         let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
@@ -94,6 +108,7 @@ window.onload = () => {
         activeCanvas.reDraw();
     }
 
+    // Record click move and paint.
     function trackPaint(event) {
         if(paint){
             let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
@@ -104,11 +119,20 @@ window.onload = () => {
         }
     }
 
+    // Stop painting.
     function stopPaint(event) {
         paint = false
     }
 
-    // HTML Button listeners.
+    // Switch the currently active tool.
+    function switchTool(event) {
+        activeTool = event.target.getAttribute("id");
+        console.log(activeTool)
+    }
+
+    $(document).on("click", "button.tool", switchTool)
+
+    // HTML switch canvas button listeners.
     $(document).on("click", "button.switch-canvas", switchCanvas);
     $('#create-canvas').on("click", createCanvas);
 
@@ -147,55 +171,35 @@ window.onload = () => {
         stopPaint(event);
     });
 
+    /// MOBILE ///
+
     // Same listeners as above but for mobile.
     $(document).on("touchstart", "canvas", (event) => {
-        if(event.touches.length > 1) {
-            let x = 0;
-            let y = 0;
-
-            event.touches.forEach(touch => {
-                x += touch.screenX;
-                y += touch.screenY;
-            })
-
-            lastScrolledLeft = x/event.touches.length;
-            lastScrolledTop = y/event.touches.length;
-        } else {
-            updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        if(activeTool == "grab-tool") {
+            $("#root").css("touch-action", "");
+        } else if(activeTool == "draw-tool") {
+            $("#root").css("touch-action", "none");
             startPaint(event);
         }
-
     })
 
     $(document).on("touchmove", "canvas", (event) => {
-        if(event.touches.length > 1) {
-            let x = 0;
-            let y = 0;
-
-            event.touches.forEach(touch => {
-                x += touch.screenX;
-                y += touch.screenY;
-            })
-
-            let moveX = x/event.touches.length - lastScrolledLeft;
-            let moveY = y/event.touches.length - lastScrolledTop;
-
-            let newX = $('#root').offset().left + moveX;
-            let newY = $('#root').offset().top + moveY;
-
-            $('#root').offset({top: newY, left: newX});
-
-            lastScrolledLeft = x/event.touches.length;
-            lastScrolledTop = y/event.touches.length;
-        } else {
-            updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
+        if(activeTool == "grab-tool") {
+            $("#root").css("touch-action", "");
+        } else if(activeTool == "draw-tool") {
+            $("#root").css("touch-action", "none");
             trackPaint(event);
         }
     })
 
     $(document).on("touchend", "canvas", (event) => {
-        event.preventDefault();
-
-        stopPaint();
+        if(activeTool == "grab-tool") {
+            $("#root").css("touch-action", "");
+        } else if(activeTool == "draw-tool") {
+            $("#root").css("touch-action", "none");
+            stopPaint(event);
+        }
     })
 };
