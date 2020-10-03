@@ -12,13 +12,14 @@
     <link rel="stylesheet" type="text/css" href="./css/global.css" />
     <script type="module" src="./js/room.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.min.js"></script>
   </head>
   <body style="padding: 0; margin: 0;">
     <div id="login">
       <div id="room-controls">
         <h1>Virtual Whiteboard</h1>
         <input class="room-control" type="text" name="creator-code" placeholder="Creator code ..."/><br />
-        <button class="room-control">Create Room</button><br />
+        <button class="room-control" id="create-room">Create Room</button><br />
         <input class="room-control" type="text" name="room-code" placeholder="Room code ..."/><br />
         <button class="room-control">Join Room</button><br />
         <button>Learn about creator pricing</button>
