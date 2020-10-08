@@ -1,1 +1,1 @@
-export const devserver = "https://70.67.117.255:3000"
+export const devserver = "wss://70.67.117.255:3000"
