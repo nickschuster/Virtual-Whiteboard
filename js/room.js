@@ -18,7 +18,7 @@ window.onload = () => {
         //  Switch active canvas
         //  Draw on a canvas
 
-        const socket = io(devserver)
+        const socket = createSocket()
 
         socket.on('connect', () => {
             console.log("Connected.")
@@ -44,7 +44,7 @@ window.onload = () => {
         // Recieve drawings
         // Cant draw but can scroll and switch canvas
 
-        const socket = io(devserver)
+        const socket = createSocket()
 
         socket.on('connect', () => {
             console.log("Connected client")
@@ -63,6 +63,14 @@ window.onload = () => {
             alert("Could not connect to room.")
         })
     })
+
+    // Create the socket.
+    function createSocket() {
+        let socket = io(devserver, {
+            rejectUnauthorized: false
+        })
+        return socket
+    }
 
     // Setup listeners for transmission events.
     function setUpHostSocket(socket) {
