@@ -1,34 +1,34 @@
-// Main javascript file for Virtual Whiteboard.
+// Controls the tools and canvas interactions.
 import Canvas from './canvas.js';
+import { CREATE_EVENT, SWITCH_EVENT } from "./events.js"
 
-const startApp = () => {
+export default class App {
 
-    // Canvas control.
-    let canvasList = [];
-    let activeCanvas;
+    constructor() {
+        // Canvas control.
+        this.canvasList = [];
+        this.activeCanvas;
 
-    // Active tool.
-    // let activeTool;
+        // Mouse/Finger scrolling.
+        this.lastScrolledLeft = 0;
+        this.lastScrolledTop = 0;
 
-    // Mouse/Finger scrolling.
-    let lastScrolledLeft = 0;
-    let lastScrolledTop = 0;
+        // Mouse/Finger position.
+        this.mouseX;
+        this.mouseY;
 
-    // Mouse/Finger position.
-    let mouseX;
-    let mouseY;
-
-    // When to record clicks for painting.
-    let paint;
+        // When to record clicks for painting.
+        this.paint;
+    }
 
     // Button listener for creating a new canvas.
-    function createCanvas() {
+    createCanvas(event) {
         // Get and create the required elements.
         let canvasContainer = document.getElementById("canvas-container");
         let buttonContainer = document.getElementById("button-container");
         let newCanvas = document.createElement("canvas");
         let switchButton = document.createElement("button");
-        let canvasId = "canvas" + canvasList.length;
+        let canvasId = "canvas" + this.canvasList.length;
 
         // Set attributes.
         switchButton.setAttribute("id", canvasId);
@@ -42,21 +42,23 @@ const startApp = () => {
 
         // Add the canvas to the list of active canvases
         let newCanvasObject = new Canvas(canvasId);
-        canvasList.push(newCanvasObject);
-        activeCanvas = newCanvasObject;
-        activeCanvas.resize();
+        this.canvasList.push(newCanvasObject);
+        this.activeCanvas = newCanvasObject;
+        this.activeCanvas.resize();
 
         // Hide all other canvases.
-        hideAllExceptOne(canvasId);
+        this.hideAllExceptOne(canvasId);
+
+        document.dispatchEvent(new CustomEvent(CREATE_EVENT))
     }
 
     // Hide all canvases except the one specified.
     //
     // Takes an ID of a canvas to show.
-    function hideAllExceptOne(canvasToShow) {
-        canvasList.forEach(canvas => {
+    hideAllExceptOne(canvasToShow) {
+        this.canvasList.forEach(canvas => {
             if(canvas.canvasId == canvasToShow) {
-                activeCanvas = canvas;
+                this.activeCanvas = canvas;
                 canvas.context.canvas.style.display = "block";
             } else {
                 canvas.context.canvas.style.display = "none";
@@ -67,125 +69,68 @@ const startApp = () => {
     // Switch to a specific canvas.
     //
     // Takes a click event.
-    function switchCanvas(event) {
-        hideAllExceptOne(event.target.getAttribute("id"));
+    switchCanvas(event) {
+        let canvasId = event.target.getAttribute("id")
+        this.hideAllExceptOne(canvasId);
+        this.activeCanvas.reDraw();
+
+        document.dispatchEvent(new CustomEvent(SWITCH_EVENT, {
+            detail: {
+                canvasId: canvasId
+            }
+        }))
     }
 
     // Keep track of scroll position to make sure that
     // the drawing position is accurate.
-    function updateScrollOffset(event) {
-        if(lastScrolledLeft != $(document).scrollLeft()){
-            mouseX -= lastScrolledLeft;
-            lastScrolledLeft = $(document).scrollLeft();
-            mouseX += lastScrolledLeft;
+    updateScrollOffset(event) {
+        if(this.lastScrolledLeft != $(document).scrollLeft()){
+            mouseX -= this.lastScrolledLeft;
+            this.lastScrolledLeft = $(document).scrollLeft();
+            mouseX += this.lastScrolledLeft;
         }
-        if(lastScrolledTop != $(document).scrollTop()){
-            mouseY -= lastScrolledTop;
-            lastScrolledTop = $(document).scrollTop();
-            mouseY += lastScrolledTop;
+        if(this.lastScrolledTop != $(document).scrollTop()){
+            mouseY -= this.lastScrolledTop;
+            this.lastScrolledTop = $(document).scrollTop();
+            mouseY += this.lastScrolledTop;
         }
     }
 
     // Update the current mouse position.
-    function updateMousePosition(event) {
-        mouseX = event.pageX;
-        mouseY = event.pageY;
+    updateMousePosition(event) {
+        this.mouseX = event.pageX;
+        this.mouseY = event.pageY;
     }
 
     // Manually specify the current mouse position.
-    function updateMousePositionManual(xPos, yPos) {
-        mouseY = yPos;
-        mouseX = xPos;
+    updateMousePositionManual(xPos, yPos) {
+        this.mouseY = yPos;
+        this.mouseX = xPos;
     }
 
     // Record a click and start painting.
-    function startPaint(event) {
-        let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
-        let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
+    startPaint(event) {
+        let paintX = this.mouseX - this.activeCanvas.context.canvas.offsetLeft;
+        let paintY = this.mouseY - this.activeCanvas.context.canvas.offsetTop;
 
-        paint = true;
-        activeCanvas.addClick(paintX, paintY, false);
-        activeCanvas.reDraw();
+        this.paint = true;
+        this.activeCanvas.addClick(paintX, paintY, false);
+        this.activeCanvas.reDraw();
     }
 
     // Record click move and paint.
-    function trackPaint(event) {
-        if(paint){
-            let paintX = mouseX - activeCanvas.context.canvas.offsetLeft;
-            let paintY = mouseY - activeCanvas.context.canvas.offsetTop;
+    trackPaint(event) {
+        if(this.paint){
+            let paintX = this.mouseX - this.activeCanvas.context.canvas.offsetLeft;
+            let paintY = this.mouseY - this.activeCanvas.context.canvas.offsetTop;
 
-            activeCanvas.addClick(paintX, paintY, true);
-            activeCanvas.reDraw();
+            this.activeCanvas.addClick(paintX, paintY, true);
+            this.activeCanvas.reDraw();
         }
     }
 
     // Stop painting.
-    function stopPaint(event) {
-        paint = false
+    stopPaint(event) {
+        this.paint = false
     }
-
-    // Switch the currently active tool.
-    // function switchTool(event) {
-    //     activeTool = event.target.getAttribute("id");
-    // }
-
-    // $(document).on("click", "button.tool", switchTool)
-
-    // HTML switch canvas button listeners.
-    $(document).on("click", "button.switch-canvas", switchCanvas);
-    $('#create-canvas').on("click", createCanvas);
-
-    // Update mouse position in case of scroll.
-    $(window).on("scroll", (event) => {
-        updateScrollOffset(event)
-    });
-
-    // Keep track of the mouse position.
-    $(document).on("mousemove", (event) => {
-        event.preventDefault();
-
-        updateMousePosition(event);
-    });
-
-    // Listener for mousedown event. Start drawing.
-    $(document).on("mousedown", "canvas", (event) => {
-        event.preventDefault();
-
-        startPaint(event);
-    });
-
-    // Listener for mousemove event. If the mouse is being clicked
-    // start adding drag locations to be drawn.
-    $(document).on("mousemove", "canvas", (event) => {
-        event.preventDefault();
-
-        trackPaint(event);
-    });
-
-    // Listener for mouseleave and mouseup. Stop drawing when mouse
-    // stops being on canvas or stops being clicked.
-    $(document).on("mouseup mouseleave", "canvas", (event) => {
-        event.preventDefault();
-
-        stopPaint(event);
-    });
-
-    /// MOBILE ///
-
-    // Same listeners as above but for mobile.
-    $(document).on("touchstart", "canvas", (event) => {
-        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        startPaint(event);
-    })
-
-    $(document).on("touchmove", "canvas", (event) => {
-        updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-        trackPaint(event);
-    })
-
-    $(document).on("touchend", "canvas", (event) => {
-        stopPaint(event);
-    })
-};
-
-export default startApp;
+}

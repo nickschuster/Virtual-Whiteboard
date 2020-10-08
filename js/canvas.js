@@ -1,3 +1,5 @@
+import { DRAW_EVENT } from "./events.js";
+
 export default class Canvas {
 
     constructor(canvasId) {
@@ -24,6 +26,15 @@ export default class Canvas {
         this.clickX.push(mouseX);
         this.clickY.push(mouseY);
         this.clickDrag.push(dragging);
+
+        document.dispatchEvent(new CustomEvent(DRAW_EVENT, {
+            detail: {
+                mouseX: mouseX,
+                mouseY: mouseY,
+                dragging: dragging,
+                canvasId: this.canvasId
+            }
+        }))
     }
 
     reDraw() {

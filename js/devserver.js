@@ -1,0 +1,1 @@
+export const devserver = "ws://70.67.117.255:3000"
