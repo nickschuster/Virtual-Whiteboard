@@ -1,2 +1,4 @@
 # Gimp image data
 /image_data
+/node_modules
+package*.json
