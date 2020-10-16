@@ -1,0 +1,39 @@
+{
+    "version": "2.0",
+    "routeKey": "POST /createRoom",
+    "rawPath": "/createRoom",
+    "rawQueryString": "",
+    "headers": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "content-length": "22",
+        "content-type": "application/json",
+        "host": "wgpzy7xiob.execute-api.us-east-1.amazonaws.com",
+        "postman-token": "9599edb8-2be8-459c-9064-f09778a15d33",
+        "user-agent": "PostmanRuntime/7.26.5",
+        "x-amzn-trace-id": "Root=1-5f8202bb-5c076c0702f1191336946bf2",
+        "x-forwarded-for": "70.67.117.255",
+        "x-forwarded-port": "443",
+        "x-forwarded-proto": "https"
+    },
+    "requestContext": {
+        "accountId": "157287004962",
+        "apiId": "wgpzy7xiob",
+        "domainName": "wgpzy7xiob.execute-api.us-east-1.amazonaws.com",
+        "domainPrefix": "wgpzy7xiob",
+        "http": {
+            "method": "POST",
+            "path": "/createRoom",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "70.67.117.255",
+            "userAgent": "PostmanRuntime/7.26.5"
+        },
+        "requestId": "UNVdSgRwoAMESJQ=",
+        "routeKey": "POST /createRoom",
+        "stage": "$default",
+        "time": "10/Oct/2020:18:51:39 +0000",
+        "timeEpoch": 1602355899356
+    },
+    "body": "{\n    \"test\": \"test\"\n}",
+    "isBase64Encoded": false
+}

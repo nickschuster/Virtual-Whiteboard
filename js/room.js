@@ -5,7 +5,7 @@ import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT } from
 
 window.onload = () => {
 
-    $("#create-room").on('click', event => {
+    $("#create-room").on('click', async (event) => {
 
         // Verify room code / login
         // Call create room API
@@ -18,24 +18,35 @@ window.onload = () => {
         //  Switch active canvas
         //  Draw on a canvas
 
-        const socket = createSocket()
+        try {
 
-        socket.on('connect', () => {
-            console.log("Connected.")
+            let creatorCode = getCreatorCode();
+            console.log(creatorCode)
+            let serverIp = await createRoom(creatorCode);
+            console.log(serverIp)
+
+            const socket = createSocket(`ws://${serverIp}:3000`)
+
+            socket.on('connect', () => {
+                console.log("Connected.")
+                
+                socket.emit(JOIN_EVENT, HOST);
+                $("#login").css("display", "none")
+
+                let app = new App()
+                setUpHost(app)
+                setUpHostSocket(socket)
+            })
+
+            socket.on("connect_error", error => {
+                
+            })
             
-            socket.emit(JOIN_EVENT, HOST);
-            $("#login").css("display", "none")
-
-            let app = new App()
-            setUpHost(app)
-            setUpHostSocket(socket)
-        })
-
-        socket.on("connect_error", error => {
-            console.log(error)
-            // Could not connect.
-            alert("could not connect to room")
-        })
+        } catch(e) {
+            console.log(e)
+        }
+        
+        
     })
 
     $("#join-room").on("click", event => {
@@ -44,7 +55,8 @@ window.onload = () => {
         // Recieve drawings
         // Cant draw but can scroll and switch canvas
 
-        const socket = createSocket()
+        
+        const socket = createSocket("ws://3.91.173.210:3000")
 
         socket.on('connect', () => {
             console.log("Connected client")
@@ -64,10 +76,31 @@ window.onload = () => {
         })
     })
 
+    // Get the creator code from the relevant form field.
+    function getCreatorCode() {
+        return $('#creator-code').val()
+    }
+
+    // Call CreateRoom API and get a public IP.
+    async function createRoom(creatorCode) {
+        let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: creatorCode })
+        })
+        let publicIp = await response.text()
+        return publicIp
+    }
+
     // Create the socket.
-    function createSocket() {
-        let socket = io(devserver, {
-            rejectUnauthorized: false
+    function createSocket(serverIp) {
+        let socket = io(serverIp, {
+            rejectUnauthorized: false,
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000
         })
         return socket
     }
