@@ -5,7 +5,7 @@
     <meta name="description" content="Virtual Whiteboard is a drawing app designed for schools." />
     <meta charset="utf-8" />
     <link rel="icon" href="./favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="theme-color" content="#ffffff" />
     <link rel="apple-touch-icon" href="./logo192.png" />
     <link rel="manifest" href="./manifest.json" />
@@ -38,13 +38,28 @@
           </div>
         </div>
         <div id="canvas-controls">
+
           <div id="room-info">
             <div id="room-code">
               Room code: <span id="code"></span>
             </div>
           </div>
+
           <div id="button-container">
             <button id="create-canvas">Create a new canvas</button>
+          </div>
+
+          <div id="tool-container">
+            <button class="tool" id="draw">Draw</button><br />
+            <button class="tool" id="erase">Erase</button><br />
+            <button class="tool" id="highlight">Highlight</button><br />
+            <button id="copypaste">Copy & Paste</button><br />
+            <button id="undo">Undo</button>
+            <button id="redo">Redo</button><br />
+            <label for="tool-size">Size: </label>
+            <input type="range" min="1" max="100" value="50" class="slider" id="tool-size"><br/>
+            <label for="tool-color">Color: </label>
+            <input type="color" id="tool-color" name="favcolor" value="#ff0000">
           </div>
         </div>
       </div>

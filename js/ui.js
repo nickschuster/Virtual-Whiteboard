@@ -11,6 +11,10 @@ export default class UI {
         $('#arrow-image').on('click', () => {
             this.collapseLeft()
         })
+
+        $('#canvas-container').on("touchstart", () => {
+            if(!this.leftCollapsed) this.collapseLeft();
+        })
     }
 
     collapseLeft() {

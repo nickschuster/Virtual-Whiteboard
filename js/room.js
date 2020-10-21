@@ -167,7 +167,7 @@ export default class Room {
         socket.on(DRAW_EVENT, clickData => {
             app.canvasList.forEach(canvas => {
                 if(canvas.canvasId === clickData.canvasId) {
-                    canvas.addClick(clickData.mouseX, clickData.mouseY, clickData.dragging)
+                    canvas.addClick(clickData.mouseX, clickData.mouseY, clickData.dragging, clickData.tool)
                 }
             })
             app.activeCanvas.reDraw()

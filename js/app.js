@@ -1,6 +1,7 @@
 // Controls the tools and canvas interactions.
 import Canvas from './canvas.js';
 import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST } from "./events.js"
+import { Tool } from './tool.js'
 
 export default class App {
 
@@ -19,6 +20,9 @@ export default class App {
 
         // Create the listeners that make the app work.
         this.setUpListeners(type)
+
+        // The currently active tool.
+        this.activeTool = Tool.draw
     }
 
     // Button listener for creating a new canvas.
@@ -41,7 +45,7 @@ export default class App {
         buttonContainer.appendChild(switchButton);
 
         // Add the canvas to the list of active canvases
-        let newCanvasObject = new Canvas(canvasId);
+        let newCanvasObject = new Canvas(canvasId, this.activeTool);
         this.canvasList.push(newCanvasObject);
         this.activeCanvas = newCanvasObject;
         this.activeCanvas.resize();
@@ -87,7 +91,7 @@ export default class App {
         let paintY = event.pageY + $('#canvas-container').scrollTop();
 
         this.paint = true;
-        this.activeCanvas.addClick(paintX, paintY, false);
+        this.activeCanvas.addClick(paintX, paintY, false, this.activeTool);
         this.activeCanvas.reDraw();
     }
 
@@ -97,7 +101,7 @@ export default class App {
             let paintX = event.pageX + $('#canvas-container').scrollLeft();
             let paintY = event.pageY + $('#canvas-container').scrollTop();
 
-            this.activeCanvas.addClick(paintX, paintY, true);
+            this.activeCanvas.addClick(paintX, paintY, true, this.activeTool);
             this.activeCanvas.reDraw();
         }
     }
@@ -105,6 +109,13 @@ export default class App {
     // Stop painting.
     stopPaint(event) {
         this.paint = false
+    }
+
+    // Switch the currently active tool.
+    switchTool(event) {
+        this.activeTool = Tool[event.target.id]
+        $('#tool-size').val(this.activeTool.lineWidth)
+        $('#tool-color').val(this.activeTool.strokeStyle)
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -118,6 +129,20 @@ export default class App {
             $('#create-canvas').on("click", event => {
                 this.createCanvas(event)
             });
+
+            // Tool listeners.
+            $(document).on('click', 'button.tool', event => {
+                if(this.activeCanvas) this.switchTool(event)
+            })
+            $("#tool-color").on('change', event => {
+                this.activeTool.strokeStyle = event.target.value
+            })
+            $('#tool-size').on('change', event => {
+                this.activeTool.lineWidth = event.target.value
+            })
+            $('#copypaste').on('click', event => {
+                
+            })
 
             // Listener for mousedown event. Start drawing.
             $(document).on("mousedown", "canvas", (event) => {
@@ -190,6 +215,8 @@ export default class App {
                 this.stopPaint(event)
             })
         } else if (type === CLIENT) {
+            $('#tool-container').hide()
+
             $(document).on("click", "button.switch-canvas", event => {
                 this.switchCanvas(event)
             });
