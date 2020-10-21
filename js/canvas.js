@@ -41,6 +41,7 @@ export default class Canvas {
         this.context.strokeStyle = "#0076ff";
         this.context.lineJoin = "round";
         this.context.lineWidth = 5;
+        this.context.lineCap = "round"
 
         for(let i = 0; i < this.clickX.length; i++) {
             this.context.beginPath();

@@ -3,86 +3,110 @@ import { devserver } from "./devserver.js"
 import App from "./app.js"
 import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT } from "./events.js"
 
-window.onload = () => {
+export default class Room {
 
-    $("#create-room").on('click', async (event) => {
+    constructor() {
 
-        // Verify room code / login
-        // Call create room API
-        // Connect to returned room
-        // Show room code
-        // Send drawings
-        
-        // Three major events
-        //  Create new canvas
-        //  Switch active canvas
-        //  Draw on a canvas
+        // Create the relevant listeners.
+        this.setUpListeners()
+    }
 
-        try {
-
-            let creatorCode = getCreatorCode();
-            console.log(creatorCode)
-            let serverIp = await createRoom(creatorCode);
-            console.log(serverIp)
-
-            const socket = createSocket(`ws://${serverIp}:3000`)
-
-            socket.on('connect', () => {
-                console.log("Connected.")
+    // Creates the room control listeners.
+    setUpListeners() {
+        $("#create-room").on('click', async (event) => {
+    
+            try {
+                this.load(true)
+    
+                const creatorCode = this.getCreatorCode();
                 
-                socket.emit(JOIN_EVENT, HOST);
-                $("#login").css("display", "none")
+                //const serverIp = await createRoom(creatorCode);
+                const serverIp = '192.168.0.101'
+                const socket = this.createHostSocket(`ws://${serverIp}:443`)
+    
+                socket.on('connect', () => {
+                    console.log("Connected.")
+    
+                    this.load(false)
+                    this.showRoomCode(serverIp)
+                    
+                    socket.emit(JOIN_EVENT, HOST);
+                    $("#login").css("display", "none")
+    
+                    let app = new App(HOST)
+                    this.setUpHostSocket(socket)
+                })
 
-                let app = new App()
-                setUpHost(app)
-                setUpHostSocket(socket)
-            })
+                socket.on("connect_error", error => {
+                    alert(error)
+                })
 
-            socket.on("connect_error", error => {
-                
-            })
+            } catch(e) {
+                this.load(false)
+                this.showError(e)
+            }
             
-        } catch(e) {
-            console.log(e)
-        }
-        
-        
-    })
-
-    $("#join-room").on("click", event => {
-
-        // Attempt to connect to room with room code
-        // Recieve drawings
-        // Cant draw but can scroll and switch canvas
-
-        
-        const socket = createSocket("ws://3.91.173.210:3000")
-
-        socket.on('connect', () => {
-            console.log("Connected client")
-
-            socket.emit(JOIN_EVENT, CLIENT)
-            $("#login").css("display", "none")
-
-            let app = new App()
-            setUpClient(app)
-            setUpClientSocket(socket, app)
+            
         })
-
-        socket.on('connect_error', error => {
-            console.log(error)
-            // Could not connect
-            alert("Could not connect to room.")
+    
+        // Join a room.
+        $("#join-room").on("click", event => {
+            try {
+                this.load(true)
+                const roomCode = this.getRoomCode()
+                const socket = this.createClientSocket(`ws://${roomCode}:443`)
+    
+                socket.on('connect', () => {
+                    console.log("Connected client")
+    
+                    this.load(false)
+    
+                    socket.emit(JOIN_EVENT, CLIENT)
+                    $("#login").css("display", "none")
+    
+                    let app = new App(CLIENT)
+                    this.setUpClientSocket(socket, app)
+                })
+    
+                socket.on('connect_error', error => {
+                    this.load(false)
+                    alert("Could not connect to room: " + error)
+                })
+            } catch(e) {
+                this.load(false)
+                this.showError(e)
+            }
         })
-    })
+    }
+
+    // Get the entered room code.
+    getRoomCode() {
+        return $('#join-code').val()
+    }
+
+    // Show the current room code.
+    showRoomCode(code) {
+        $('#room-code').css('display', 'block')
+        $('#code').text(code)
+    }
+
+    // Show an error.
+    showError(e) {
+        alert(e)
+    }
+
+    // Turn the loading animation on or off.
+    load(show) {
+        $('#load').css('display', (show ? 'block' : 'none'))
+    }
 
     // Get the creator code from the relevant form field.
-    function getCreatorCode() {
+    getCreatorCode() {
         return $('#creator-code').val()
     }
 
     // Call CreateRoom API and get a public IP.
-    async function createRoom(creatorCode) {
+    async createRoom(creatorCode) {
         let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
             method: 'POST',
             headers: {
@@ -90,12 +114,22 @@ window.onload = () => {
             },
             body: JSON.stringify({ code: creatorCode })
         })
+        if(!response.ok) throw new Error(await response.text())
         let publicIp = await response.text()
         return publicIp
     }
 
-    // Create the socket.
-    function createSocket(serverIp) {
+    // Create the client socket.
+    createClientSocket(serverIp) {
+        let socket = io(serverIp, {
+            rejectUnauthorized: false,
+            reconnection: false
+        })
+        return socket
+    }
+
+    // Create the host socket.
+    createHostSocket(serverIp) {
         let socket = io(serverIp, {
             rejectUnauthorized: false,
             reconnection: true,
@@ -106,7 +140,7 @@ window.onload = () => {
     }
 
     // Setup listeners for transmission events.
-    function setUpHostSocket(socket) {
+    setUpHostSocket(socket) {
         document.addEventListener(DRAW_EVENT, event => {
             socket.emit(DRAW_EVENT, event.detail)
         })
@@ -121,7 +155,7 @@ window.onload = () => {
     }
 
     // Setup listeners for revieving host transmissions.
-    function setUpClientSocket(socket, app) {
+    setUpClientSocket(socket, app) {
         socket.on(CREATE_EVENT, () => {
             app.createCanvas(null)
         })
@@ -138,75 +172,5 @@ window.onload = () => {
             })
             app.activeCanvas.reDraw()
         })
-    }
-
-    // Setup all button listeners for operation of the whiteboard.
-    function setUpHost(app) {
-        // HTML switch canvas button listeners.
-        $(document).on("click", "button.switch-canvas", event => {
-            app.switchCanvas(event)
-        });
-        $('#create-canvas').on("click", event => {
-            app.createCanvas(event)
-        });
-
-        // Update mouse position in case of scroll.
-        $(window).on("scroll", (event) => {
-            app.updateScrollOffset(event)
-        });
-
-        // Keep track of the mouse position.
-        $(document).on("mousemove", (event) => {
-            event.preventDefault();
-
-            app.updateMousePosition(event);
-        });
-
-        // Listener for mousedown event. Start drawing.
-        $(document).on("mousedown", "canvas", (event) => {
-            event.preventDefault();
-
-            app.startPaint(event);
-        });
-
-        // Listener for mousemove event. If the mouse is being clicked
-        // start adding drag locations to be drawn.
-        $(document).on("mousemove", "canvas", (event) => {
-            event.preventDefault();
-
-            app.trackPaint(event);
-        });
-
-        // Listener for mouseleave and mouseup. Stop drawing when mouse
-        // stops being on canvas or stops being clicked.
-        $(document).on("mouseup mouseleave", "canvas", (event) => {
-            event.preventDefault();
-
-            app.stopPaint(event);
-        });
-
-        /// MOBILE ///
-
-        // Same listeners as above but for mobile.
-        $(document).on("touchstart", "canvas", (event) => {
-            app.updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-            app.startPaint(event);
-        })
-
-        $(document).on("touchmove", "canvas", (event) => {
-            app.updateMousePositionManual(event.touches[0].clientX, event.touches[0].clientY);
-            app.trackPaint(event);
-        })
-
-        $(document).on("touchend", "canvas", (event) => {
-            app.stopPaint(event);
-        })
-    }
-
-    // Setup button listeners for the operation of the whiteboard.
-    function setUpClient(app) {   
-        $(document).on("click", "button.switch-canvas", event => {
-            app.switchCanvas(event)
-        });
     }
 }

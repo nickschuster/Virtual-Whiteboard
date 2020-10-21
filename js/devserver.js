@@ -1,1 +1,1 @@
-export const devserver = "ws://54.172.57.81:3000"
+export const devserver = "ws://localhost:3000"
