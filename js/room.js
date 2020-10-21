@@ -20,9 +20,9 @@ export default class Room {
     
                 const creatorCode = this.getCreatorCode();
                 
-                //const serverIp = await createRoom(creatorCode);
-                const serverIp = '192.168.0.101'
-                const socket = this.createHostSocket(`ws://${serverIp}:443`)
+                const serverIp = await createRoom(creatorCode);
+                //const serverIp = '192.168.0.101'
+                const socket = this.createHostSocket(`ws://${serverIp}:3000`)
     
                 socket.on('connect', () => {
                     console.log("Connected.")
@@ -54,7 +54,7 @@ export default class Room {
             try {
                 this.load(true)
                 const roomCode = this.getRoomCode()
-                const socket = this.createClientSocket(`ws://${roomCode}:443`)
+                const socket = this.createClientSocket(`ws://${roomCode}:3000`)
     
                 socket.on('connect', () => {
                     console.log("Connected client")
