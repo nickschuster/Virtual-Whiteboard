@@ -10,24 +10,39 @@ window.onload = () => {
 
     // Next steps:
             // Clean up UI - done
-            // Fix bugs. - scroll bug!/mobile bugs! - done - scroll is little fucky but good enough for now
+            // Fix bugs. - scroll bug!/mobile bugs! - done
             // Basic draw - size and color - done
     
-            // Highlighter - size and color - set opacity - done - looks a little funky? - maybe disable color change
+            // Highlighter - size and color - set opacity - done 
             // Eraser - done
-    // Copy and paste of selection
+
+            // SCROLLING WHILE BEING THE CLIENT!!! - done
+    
+            // Copy and paste of selection - done - may want to redo UI lol. 
+    
     // Renaming of Canvases
     // Room list with nicknames
     // Send history to new joiners
-    // Zoom ??? - hard to do I think.
     // Ask question
     // Be notified of question 
     // View question
     // Jump to next question
+    // Save a canvas as an image
     // Reconnections / Service interuptions.   
     // UI / Mobile 
+        // Highlight the current HOST canvas.
+        // Highlight where there is a question.
+    // Implement better creator code detection and authorization
+    // Room code translation.
+    // Payment and about page for virtual-whiteboard
+    // Tls/DNS for rooms?
+    // Logo for mobile.
     
+    // ON HOLD //
+
+    // Change the drawing function to only draw changes
     // Line smoothing?
-    // Undo Redo
+    // Zoom ??? - hard to do I think.
+    // Undo Redo - cant be done - no way to delete as of now
 
 }

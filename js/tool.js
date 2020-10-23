@@ -22,6 +22,6 @@ export let Tool = {
         strokeStyle: '#ffff00',
         globalCompositeOperation: "multiply",
         lineJoin: 'round',
-        lineCap: 'square'
+        lineCap: 'round'
     }
 }

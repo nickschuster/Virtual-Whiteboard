@@ -13,11 +13,31 @@
     <script type="module" src="./js/startup.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.min.js"></script>
+    <script
+		    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+			  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+			  crossorigin="anonymous"></script>
   </head>
+
+  <!-- Body... -->
   <body style="padding: 0; margin: 0;">
+    
+    <!-- Copy & Paste element -->
+    <div id="copypaste-container">
+      <p style="display: none;">Placeholder for JQueryUI draggable. Only works if div has content...</p>
+      <div id="copypaste-buttons">
+        <button id="copy">Copy</button>
+        <button id="paste">Paste</button>
+      </div>
+      <div id="resize"></div>
+    </div>
+
+    <!-- Loading animation. -->
     <div id="load">
       <div id="loader"></div>
     </div>
+
+    <!-- Login/Room controls. -->
     <div id="login">
       <div id="room-controls">
         <h1>Virtual Whiteboard</h1>
@@ -28,9 +48,11 @@
         <button>Learn about creator pricing</button>
       </div>
     </div>
+
+    <!-- App container. -->
     <div id="root">
 
-      <!-- Left side -->
+      <!-- Canvas controls/left collapsiable. -->
       <div id="controls">
         <div id="collapse-control">
           <div id="controls-arrow">
@@ -54,8 +76,6 @@
             <button class="tool" id="erase">Erase</button><br />
             <button class="tool" id="highlight">Highlight</button><br />
             <button id="copypaste">Copy & Paste</button><br />
-            <button id="undo">Undo</button>
-            <button id="redo">Redo</button><br />
             <label for="tool-size">Size: </label>
             <input type="range" min="1" max="100" value="50" class="slider" id="tool-size"><br/>
             <label for="tool-color">Color: </label>
@@ -64,8 +84,9 @@
         </div>
       </div>
 
-      <!-- Center -->
+      <!-- Canvases. -->
       <div id="canvas-container"></div>
+
       <noscript>You need to enable JavaScript to run this app.</noscript>
     </div>
   </body>

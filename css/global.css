@@ -117,6 +117,61 @@ canvas {
     width: 150px;
 }
 
+#copypaste-container {
+    position: absolute;
+    display: none;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    border: 2px dotted blue;
+    /* z-index: 1010; */
+    z-index: 2000;
+}
+
+#copypaste-container:hover {
+    cursor: pointer;
+}
+
+#copypaste-buttons {
+    display: block;
+    position: relative;
+    left: 50%;
+    margin-left: -86px;
+    margin-top: -28px;
+    width: 172px;
+}
+
+#copy {
+    float: left;
+    display: block;
+    position: relative;
+}
+
+#paste {
+    float: right;
+    display: block;
+    position: relative;
+}
+
+#resize {
+    background-color: grey;
+    width: 10px;
+    height: 10px;
+    box-shadow: 0px 0px 3px blue;
+    border-radius: 50%;
+    position: relative;
+    display: block;
+    margin-top: 38px;
+    margin-left: 10px;
+    top: 100%;
+    left: 100%;
+}
+
+#resize:hover {
+    cursor: nwse-resize;
+}
+
 #login {
     display: block;
     z-index: 1010;

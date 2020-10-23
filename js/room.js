@@ -38,7 +38,7 @@ export default class Room {
                 })
 
                 socket.on("connect_error", error => {
-                    alert(error)
+                    console.log(error)
                 })
 
             } catch(e) {
