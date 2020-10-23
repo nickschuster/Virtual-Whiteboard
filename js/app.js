@@ -9,6 +9,7 @@ export default class App {
         // Canvas control.
         this.canvasList = [];
         this.activeCanvas;
+        this.canvasCount = 0;
 
         // Scrolling control on mobile.
         this.scroll = false;
@@ -34,29 +35,64 @@ export default class App {
         this.copy = []
         this.cpLocTop = 0;
         this.cpLocLeft = 0;
+    }
 
-        // The redo queue.
-        this.redo = []
+    // Create all the resource controls for a canvas.
+    // Binds them to a canvasId.
+    createCanvasButtons(canvasId) {
+        
+        // Get and create the required elements.
+        let buttonContainer = document.getElementById("button-container");
+        let container = document.createElement('div');
+        let switchButton = document.createElement('button');
+        let editImg = document.createElement('img');
+        let deleteImg = document.createElement('img');
+        let contentBreak = document.createElement('br')
+
+        // Set the attributes.
+        container.setAttribute('class', 'canvas-button-container')
+        container.setAttribute('id', canvasId)
+
+        switchButton.setAttribute('class', 'switch-canvas')
+        switchButton.setAttribute('id', canvasId)
+        switchButton.textContent = canvasId
+
+        editImg.setAttribute('class', 'edit-canvas')
+        editImg.setAttribute('src', './img/edit.png')
+        editImg.setAttribute('alt', 'Edit canvas name.')
+        editImg.setAttribute('id', canvasId)
+
+        deleteImg.setAttribute('class', 'delete-canvas')
+        deleteImg.setAttribute('src', './img/delete.png')
+        deleteImg.setAttribute('alt', "Delete canvas.")
+        deleteImg.setAttribute('id', canvasId)
+
+        // Set up DOM structure.
+        container.appendChild(switchButton)
+        container.appendChild(editImg)
+        container.appendChild(deleteImg)
+        
+        buttonContainer.appendChild(container)
+        buttonContainer.appendChild(contentBreak)
     }
 
     // Button listener for creating a new canvas.
     createCanvas(event) {
         // Get and create the required elements.
+
+        // Create the canvas
         let canvasContainer = document.getElementById("canvas-container");
-        let buttonContainer = document.getElementById("button-container");
         let newCanvas = document.createElement("canvas");
-        let switchButton = document.createElement("button");
-        let canvasId = "canvas" + this.canvasList.length;
+        let canvasId = "canvas" + ++this.canvasCount;
+
+        // Create the canvas controls.
+        this.createCanvasButtons(canvasId)
 
         // Set attributes.
-        switchButton.setAttribute("id", canvasId);
-        switchButton.setAttribute("class", "switch-canvas");
-        switchButton.textContent = canvasId;
         newCanvas.setAttribute("id", canvasId);
 
         // Append the elements to the DOM.
         canvasContainer.appendChild(newCanvas);
-        buttonContainer.appendChild(switchButton);
 
         // Add the canvas to the list of active canvases
         let newCanvasObject = new Canvas(canvasId, this.activeTool);
@@ -133,6 +169,16 @@ export default class App {
         this.activeTool = Tool[event.target.id]
         $('#tool-size').val(this.activeTool.lineWidth)
         $('#tool-color').val(this.activeTool.strokeStyle)
+    }
+
+    // Edit the name of a canvas.
+    editCanvasName(canvasId) {
+        // TODO
+    }
+
+    // Delete a canvas.
+    deleteCanvas(canvasId) {
+        // TODO
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -270,6 +316,14 @@ export default class App {
                 }
             })
 
+            // Rename and delete a canvas.
+            $(document).on('click', 'img.edit-canvas', event => {
+                this.editCanvasName(event.target.id)
+            })
+            $(document).on('click', 'img.delete-canvas', event => {
+                this.deleteCanvas(event.target.id)
+            })
+
             // Start drawing.
             $(document).on("mousedown", "canvas", (event) => {
                 event.preventDefault();
@@ -342,6 +396,8 @@ export default class App {
                 this.stopPaint(event)
             })
         } else if (type === CLIENT) {
+            $('.delete-canvas').css('cursor', 'not-allowed')
+            $('.edit-canvas').css('cursor', 'not-allowed')
             $('#tool-container').hide()
 
             $(document).on("click", "button.switch-canvas", event => {

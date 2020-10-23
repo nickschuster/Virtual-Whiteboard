@@ -20,6 +20,8 @@ window.onload = () => {
     
             // Copy and paste of selection - done - may want to redo UI lol. 
     
+    // Copy and paste bug with continuing lines.
+
     // Renaming of Canvases
     // Room list with nicknames
     // Send history to new joiners
