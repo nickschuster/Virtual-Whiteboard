@@ -1,3 +1,3 @@
 # Virtual Whiteboard
 
-A virtual whiteboard solution for large schools.
+A virtual whiteboard solution for schools, colleges and universities.
