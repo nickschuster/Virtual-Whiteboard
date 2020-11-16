@@ -20,8 +20,8 @@ export default class Room {
     
                 const creatorCode = this.getCreatorCode();
                 
-                const serverIp = await this.createRoom(creatorCode);
-                // const serverIp = '192.168.0.101'
+                // const serverIp = await this.createRoom(creatorCode);
+                const serverIp = '192.168.0.101'
                 const socket = this.createHostSocket(`ws://${serverIp}:3000`)
     
                 socket.on('connect', () => {

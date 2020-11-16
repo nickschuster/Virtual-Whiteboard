@@ -22,15 +22,16 @@ window.onload = () => {
     
     // Copy and paste bug with continuing lines.
 
-    // Renaming of Canvases
-    // Room list with nicknames
-    // Send history to new joiners
-    // Ask question
-    // Be notified of question 
-    // View question
-    // Jump to next question
-    // Save a canvas as an image
-    // Reconnections / Service interuptions.   
+        // Renaming of Canvases
+        // Room list with nicknames
+        // Send history to new joiners
+        // Ask question
+        // Be notified of question 
+        // View question
+        // Jump to next question
+        // Save a canvas as an image
+        // Reconnections / Service interuptions.   
+
     // UI / Mobile 
         // Highlight the current HOST canvas.
         // Highlight where there is a question.

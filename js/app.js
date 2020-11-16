@@ -174,6 +174,11 @@ export default class App {
     // Edit the name of a canvas.
     editCanvasName(canvasId) {
         // TODO
+        // Show rename box.
+        // If ok rename and send renmae signal
+        // If cancle close box.
+        $("")
+        let edit = await renameCanvas()
     }
 
     // Delete a canvas.
