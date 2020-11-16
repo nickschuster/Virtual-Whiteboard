@@ -22,14 +22,23 @@
   <!-- Body... -->
   <body style="padding: 0; margin: 0;">
 
-    <!-- Canvas renaming box. -->
-    <div id="rename-canvas">
-      <h3 id="rename-title">Rename <span id="canvas-name"></span></h3>
+    <!-- Canvas renaming popup. -->
+    <div class="canvas-popup" id="rename-canvas">
+      <h3 class="popup-title">Rename <span id="canvas-name-rename"></span>?</h3>
       <hr>
       <input id="rename-name" type="text" placeholder="New canvas name..."/>
       <br>
       <button id="rename">Rename</button>
       <button id="cancel-rename">Cancel</button>
+    </div>
+
+    <!-- Canvas delete popup -->
+    <div class="canvas-popup" id="delete-canvas">
+      <h3 class="popup-title">Delete <span id="canvas-name-delete"></span>?</h3>
+      <hr>
+      <p id="delete-warning">Warning! This cannot be undone.</p>
+      <button id="delete">Delete</button>
+      <button id="cancel-delete">Cancel</button>
     </div>
     
     <!-- Copy & Paste element -->
@@ -55,7 +64,7 @@
         <button class="room-control" id="create-room">Create Room</button><br />
         <input class="room-control" id="join-code" type="text" name="room-code" placeholder="Room code ..."/><br />
         <button class="room-control" id="join-room">Join Room</button><br />
-        <button>Learn about creator pricing</button>
+        <!-- <button>Learn about creator pricing</button> -->
       </div>
     </div>
 

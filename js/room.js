@@ -1,7 +1,7 @@
 // Create / Join a room.
 import { devserver } from "./devserver.js"
 import App from "./app.js"
-import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT } from "./events.js"
+import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT } from "./events.js"
 
 export default class Room {
 
@@ -152,6 +152,14 @@ export default class Room {
         document.addEventListener(CREATE_EVENT, event => {
             socket.emit(CREATE_EVENT)
         })
+
+        document.addEventListener(RENAME_EVENT, event => {
+            socket.emit(RENAME_EVENT, event.detail)
+        })
+
+        document.addEventListener(DELETE_EVENT, event => {
+            socket.emit(DELETE_EVENT, event.detail.canvasId)
+        })
     }
 
     // Setup listeners for revieving host transmissions.
@@ -171,6 +179,14 @@ export default class Room {
                 }
             })
             app.activeCanvas.reDraw()
+        })
+
+        socket.on(RENAME_EVENT, renameDetails => {
+            app.editCanvasName(renameDetails.canvasId, renameDetails.newName);
+        })
+
+        socket.on(DELETE_EVENT, canvasId => {
+            app.deleteCanvas(canvasId)
         })
     }
 }

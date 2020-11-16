@@ -31,7 +31,9 @@ button, input[type='color'], input[type='range'] {
     width: 77%;
     float: left;
     text-overflow: ellipsis;
+    white-space: nowrap;
     overflow: hidden;
+    overflow-y: hidden;
 }
 
 .edit-canvas {
@@ -41,6 +43,7 @@ button, input[type='color'], input[type='range'] {
 	padding: 0;
     display: block;
     width: 22px;
+    cursor: pointer;
 }
 
 .delete-canvas {
@@ -52,6 +55,7 @@ button, input[type='color'], input[type='range'] {
     float: right;
     width: 22px;
     margin-top: -22px;
+    cursor: pointer;
 }
 
 #canvas-container {
@@ -70,13 +74,19 @@ button, input[type='color'], input[type='range'] {
     display: none;
     padding: 20px;
     pointer-events: none;
+    user-select: all !important;
+    touch-action: auto !important;
 }
 
-#rename-canvas {
+.popup-title {
+    margin: 0px;
+    overflow-x: scroll;
+    white-space: nowrap;
+}
+
+.canvas-popup {
     position: absolute;
-    display: block;
-    width: 205px;
-    height: 100px;
+    display: none;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -87,13 +97,12 @@ button, input[type='color'], input[type='range'] {
     padding: 20px;
 }
 
-#rename-title {
-    margin: 0px;
-    overflow-x: scroll;
-}
-
 #rename-name {
     width: 185px;
+}
+
+#delete-warning {
+    width: 190px;
 }
 
 @keyframes spin {
@@ -274,5 +283,5 @@ button, input[type='color'], input[type='range'] {
     font-size: 30px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: scroll;
 }

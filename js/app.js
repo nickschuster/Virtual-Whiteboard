@@ -1,6 +1,6 @@
 // Controls the tools and canvas interactions.
 import Canvas from './canvas.js';
-import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST } from "./events.js"
+import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST, RENAME_EVENT, DELETE_EVENT } from "./events.js"
 import { Tool } from './tool.js'
 
 export default class App {
@@ -20,7 +20,8 @@ export default class App {
         this.paint;
 
         // Create the listeners that make the app work.
-        this.setUpListeners(type)
+        this.type = type;
+        this.setUpListeners(this.type)
 
         // The currently active tool.
         this.activeTool = Tool.draw
@@ -67,13 +68,19 @@ export default class App {
         deleteImg.setAttribute('alt', "Delete canvas.")
         deleteImg.setAttribute('id', canvasId)
 
+        // Have to set this here because the elements are created dynamically.
+        if(this.type == CLIENT) {
+            deleteImg.setAttribute("style", "cursor: not-allowed");
+            editImg.setAttribute("style", "cursor: not-allowed");
+        }
+
         // Set up DOM structure.
         container.appendChild(switchButton)
         container.appendChild(editImg)
         container.appendChild(deleteImg)
-        
+        container.appendChild(contentBreak)
+
         buttonContainer.appendChild(container)
-        buttonContainer.appendChild(contentBreak)
     }
 
     // Button listener for creating a new canvas.
@@ -124,7 +131,7 @@ export default class App {
     //
     // Takes a click event.
     switchCanvas(event) {
-        let canvasId = event.target.getAttribute("id")
+        let canvasId = event.target.id;
         this.hideAllExceptOne(canvasId);
         this.activeCanvas.reDraw();
 
@@ -172,18 +179,26 @@ export default class App {
     }
 
     // Edit the name of a canvas.
-    editCanvasName(canvasId) {
-        // TODO
-        // Show rename box.
-        // If ok rename and send renmae signal
-        // If cancle close box.
-        $("")
-        let edit = await renameCanvas()
+    editCanvasName(canvasId, renameText) {
+        $(`button#${canvasId}`).text(renameText);
     }
 
     // Delete a canvas.
     deleteCanvas(canvasId) {
-        // TODO
+       // Delete all canvas componenets.
+       $(`#${canvasId}`).remove();
+       $(`#${canvasId}`).remove();
+       for(let i = 0; i < this.canvasList.length; i++) {
+           if(this.canvasList[i].canvasId === canvasId) {
+               this.canvasList.splice(i, 1);
+           }
+       }
+
+       if(this.canvasList.length > 0) {
+           this.switchCanvas({target: {id: this.canvasList[0].canvasId}})
+       } else {
+           this.activeCanvas = null;
+       }
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -199,17 +214,16 @@ export default class App {
             });
 
             // Tool listeners.
-
-            // General tool change.
             $(document).on('click', 'button.tool', event => {
+                // General tool change.
                 if(this.activeCanvas) this.switchTool(event)
             })
-
-            // Size and color.
             $("#tool-color").on('change', event => {
+                // Color.
                 this.activeTool.strokeStyle = event.target.value
             })
             $('#tool-size').on('change', event => {
+                // Size.
                 this.activeTool.lineWidth = event.target.value
             })
 
@@ -218,9 +232,7 @@ export default class App {
                 $('#copypaste-container').toggle();
                 $('#copypaste-container').css("top", '50%')
                 $('#copypaste-container').css("left", '50%')
-            })
-
-            // Copy paste movement and resizing mobile and pc.
+            }) // Copy paste movement and resizing mobile and pc.
             $('#copypaste-container').on('mousedown touchstart', event => {
                 // Save initial click position and start moving
                 this.cpLeft = event.clientX ? event.clientX : event.touches[0].clientX;
@@ -268,10 +280,9 @@ export default class App {
                 this.cpTop = (event.clientY ? event.clientY : event.touches[0].clientY) 
                 this.resizeCp = true;
                 this.moveCp = false;
-            })
-
-            // Copy whatever is in the selection.
+            })   
             $('#copy').on('click', () => {
+                // Copy whatever is in the selection.
                 if(this.activeCanvas) {
                     // Copy the drawing inside the outline.
                     let containerPos = $('#copypaste-container').offset()
@@ -299,9 +310,9 @@ export default class App {
                     }
                 }
             })
-
-            // Paste the saved selection at the new location.
             $('#paste').on('click', () => {
+                // Paste the saved selection at the new location.
+                $('#load').show();
                 if(this.copy && this.activeCanvas) {
                     // Paste the most recent copy.
                     let containerPos = $('#copypaste-container').offset()
@@ -319,32 +330,83 @@ export default class App {
 
                     this.activeCanvas.reDraw()   
                 }
+                $('#load').hide();
             })
 
             // Rename and delete a canvas.
             $(document).on('click', 'img.edit-canvas', event => {
-                this.editCanvasName(event.target.id)
+                let canvasId = event.target.id
+                $("#rename-canvas").show().css("display", "inline-block");;
+                $("#canvas-name-rename").text($(`button#${canvasId}`).text());
+                $("#rename").on("click", event => {
+                    // Rename the canvas and hide.
+                    let renameText = $("#rename-name").val() === "" ? "..." : $("#rename-name").val();
+                    this.editCanvasName(canvasId, renameText);
+                    $("#rename-canvas").hide();
+                    $("#rename-name").val("");
+
+                    // Broadcast rename event.
+
+                    document.dispatchEvent(new CustomEvent(RENAME_EVENT, {
+                        detail: {
+                            canvasId: canvasId,
+                            newName: renameText
+                        }
+                    }))
+
+                    $( this ).off( event );
+                })
+                $("#cancel-rename").on("click", event => {
+                    // Cancel and hide.
+                    $("#rename-canvas").hide();
+                    $("#rename-name").val("");
+                    $( this ).off( event );
+                })
             })
             $(document).on('click', 'img.delete-canvas', event => {
-                this.deleteCanvas(event.target.id)
+                let canvasId = event.target.id;
+                $("#delete-canvas").show().css("display", "inline-block");
+                $("#canvas-name-delete").text($(`button#${canvasId}`).text());
+        
+                $("#delete").on("click", event => {
+                    
+                    this.deleteCanvas(canvasId);
+
+                    $("#delete-canvas").hide();
+
+                    // Broadcast delete event.
+
+                    document.dispatchEvent(new CustomEvent(DELETE_EVENT, {
+                        detail: {
+                            canvasId: canvasId
+                        }
+                    }))
+
+                    $( this ).off( event );
+                })
+        
+                $("#cancel-delete").on("click", event => {
+                    // Cancel and hide.
+                    $("#delete-canvas").hide();
+                    $( this ).off( event );
+                })
             })
 
-            // Start drawing.
+            // Drawing controls.
             $(document).on("mousedown", "canvas", (event) => {
+                // Start drawing.
                 event.preventDefault();
 
                 this.startPaint(event);
             });
-
-            // If the mouse is being clicked start adding drag locations to be drawn.
             $(document).on("mousemove", "canvas", (event) => {
+                // If the mouse is being clicked start adding drag locations to be drawn.
                 event.preventDefault();
 
                 this.trackPaint(event);
             });
-
-            // Stop drawing when mouse stops being on canvas or stops being clicked.
             $(document).on("mouseup mouseleave", "canvas", (event) => {
+                // Stop drawing when mouse stops being on canvas or stops being clicked.
                 event.preventDefault();
 
                 this.stopPaint(event);
@@ -374,7 +436,6 @@ export default class App {
                     this.startPaint(transEvent);
                 }
             })
-
             $(document).on("touchmove", "canvas", (event) => {
                 if(this.scroll) {
 
@@ -395,20 +456,17 @@ export default class App {
                     this.trackPaint(transEvent);
                 }
             })
-
             $(document).on("touchend", "canvas", (event) => {
                 this.scroll = false;
                 this.stopPaint(event)
             })
+
         } else if (type === CLIENT) {
-            $('.delete-canvas').css('cursor', 'not-allowed')
-            $('.edit-canvas').css('cursor', 'not-allowed')
             $('#tool-container').hide()
 
             $(document).on("click", "button.switch-canvas", event => {
                 this.switchCanvas(event)
             });
-
 
             // MOBILE //
 
@@ -423,7 +481,6 @@ export default class App {
 
                 }
             })
-
             $(document).on("touchmove", "canvas", (event) => {
                 if(this.scroll) {
 
@@ -433,7 +490,6 @@ export default class App {
                     document.getElementById('canvas-container').scroll(scrollX, scrollY)
                 }
             })
-
             $(document).on("touchend", "canvas", (event) => {
                 this.scroll = false;
             })

@@ -8,7 +8,7 @@ window.onload = () => {
     let ui = new UI();
     let room = new Room();
 
-    // Next steps:
+    // DONE:
             // Clean up UI - done
             // Fix bugs. - scroll bug!/mobile bugs! - done
             // Basic draw - size and color - done
@@ -20,24 +20,30 @@ window.onload = () => {
     
             // Copy and paste of selection - done - may want to redo UI lol. 
     
+    // TODO:
+    
+    // Renaming/Deleting of Canvases - Mobile disable button.
+
     // Copy and paste bug with continuing lines.
 
-        // Renaming of Canvases
-        // Room list with nicknames
-        // Send history to new joiners
-        // Ask question
-        // Be notified of question 
-        // View question
-        // Jump to next question
-        // Save a canvas as an image
-        // Reconnections / Service interuptions.   
+    // Canvas title and no canvas selected image.
+    // Loading text/Steps/Timer
+    // Room list with nicknames
+    // Send history to new joiners
+    // Ask question
+    // Be notified of question 
+    // View question
+    // Jump to next question
+    // Save a canvas as an image
+    // Reconnections / Service interuptions.   
+    // Text/Latex Integeration
 
     // UI / Mobile 
         // Highlight the current HOST canvas.
         // Highlight where there is a question.
     // Implement better creator code detection and authorization
     // Room code translation.
-    // Payment and about page for virtual-whiteboard
+    // About page for virtual-whiteboard
     // Tls/DNS for rooms?
     // Logo for mobile.
     
@@ -46,6 +52,5 @@ window.onload = () => {
     // Change the drawing function to only draw changes
     // Line smoothing?
     // Zoom ??? - hard to do I think.
-    // Undo Redo - cant be done - no way to delete as of now
 
 }
