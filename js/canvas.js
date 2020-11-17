@@ -19,6 +19,9 @@ export default class Canvas {
         // Canvas size.
         this.width = window.innerWidth*0.9;
         this.height = window.innerHeight*0.9;
+
+        // Only draw changes
+        this.lastIndex = 0;
     }
 
     // Add a click to the position arrays.
@@ -43,9 +46,10 @@ export default class Canvas {
         }))
     }
 
-    reDraw() {
+    reDraw(drawAll) {
+        let startIndex = drawAll ? 0 : this.lastIndex
         let mostRecentTool;
-        for(let i = 0; i < this.clickX.length; i++) {
+        for(let i = startIndex; i < this.clickX.length; i++) {
             if(mostRecentTool !== this.tools[i]) {
                 mostRecentTool = this.tools[i]
                 Object.keys(this.tools[i]).forEach(key => {
@@ -61,6 +65,8 @@ export default class Canvas {
             this.context.lineTo(this.clickX[i], this.clickY[i]);
             this.context.stroke();
             this.context.closePath();
+
+            this.lastIndex = i
         }
 
     }
@@ -75,7 +81,7 @@ export default class Canvas {
         this.context.canvas.width = this.width;
         this.context.canvas.height = this.height;
 
-        this.reDraw();
+        this.reDraw(true);
     }
 
 }

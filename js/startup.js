@@ -21,34 +21,32 @@ window.onload = () => {
             // Copy and paste of selection - done - may want to redo UI lol. 
             // Renaming/Deleting of Canvases - Mobile disable button. - done
             // Copy and paste bug with continuing lines. - done - may want to look into refactoring to image copy/paste
-    
+            // Canvas title and no canvas selected image.
+            // Loading text/Steps/Timer
+            // Rebrand canvas as whitebaord across app.
+            // Change the drawing function to only draw changes
+            // Room code translation.
+            
     // TODO:
 
-    // Canvas title and no canvas selected image.
-    // Loading text/Steps/Timer
-    // Room list with nicknames
     // Send history to new joiners
+    // Reconnections / Service interuptions.  
+
+    // Room list with nicknames
     // Ask question
     // Be notified of question 
     // View question
     // Jump to next question
     // Save a canvas as an image
-    // Reconnections / Service interuptions.   
     // Text/Latex Integeration
-
     // UI / Mobile 
         // Highlight the current HOST canvas.
         // Highlight where there is a question.
+
     // Implement better creator code detection and authorization
-    // Room code translation.
     // About page for virtual-whiteboard
     // Tls/DNS for rooms?
     // Logo for mobile.
-    
-    // ON HOLD //
 
-    // Change the drawing function to only draw changes
-    // Line smoothing?
-    // Zoom ??? - hard to do I think.
 
 }

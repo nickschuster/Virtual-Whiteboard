@@ -16,19 +16,21 @@ export default class Room {
         $("#create-room").on('click', async (event) => {
     
             try {
-                this.load(true)
     
                 const creatorCode = this.getCreatorCode();
-                
+                this.load(true, "Looking up creator code (1/4)")
                 // const serverIp = await this.createRoom(creatorCode);
+                this.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
                 const serverIp = '192.168.0.101'
                 const socket = this.createHostSocket(`ws://${serverIp}:3000`)
     
                 socket.on('connect', () => {
                     console.log("Connected.")
+
+                    this.load(true, "Connected. (4/4)")
     
                     this.load(false)
-                    this.showRoomCode(serverIp)
+                    this.showRoomCode(this.ipToRoom(serverIp))
                     
                     socket.emit(JOIN_EVENT, HOST);
                     $("#login").css("display", "none")
@@ -52,13 +54,13 @@ export default class Room {
         // Join a room.
         $("#join-room").on("click", event => {
             try {
-                this.load(true)
-                const roomCode = this.getRoomCode()
+                this.load(true, "Looking up room (1/3)")
+                const roomCode = this.roomToIp(this.getRoomCode())
                 const socket = this.createClientSocket(`ws://${roomCode}:3000`)
+                this.load(true, "Connecting... (2/3)")
     
                 socket.on('connect', () => {
-                    console.log("Connected client")
-    
+                    this.load(true, "Getting room history (3/3)")
                     this.load(false)
     
                     socket.emit(JOIN_EVENT, CLIENT)
@@ -84,6 +86,41 @@ export default class Room {
         return $('#join-code').val()
     }
 
+    // Translate from ip to room code.
+    ipToRoom(ip) {
+        let numbers = ip.split(".")
+        let roomCode = ""
+        for(let number of numbers) {
+            let hex = parseInt(number).toString(16)
+            if(hex.length < 2) {
+                hex = "0"+hex
+            }
+            roomCode += hex
+        }
+        return roomCode
+    }
+
+    // Translate from room code to ip.
+    roomToIp(roomCode) {
+        console.log(roomCode)
+        let hexes = []
+        let temp = ""
+        for(let i = 0; i < roomCode.length; i++) {
+            temp += roomCode[i]
+            if(temp.length == 2) {
+                hexes.push(temp)
+                temp = ""
+            }
+        }
+
+        let ip = []
+        for(let hex of hexes) {
+            ip.push(parseInt(hex, 16))
+        }
+
+        return ip.join(".")
+    }
+
     // Show the current room code.
     showRoomCode(code) {
         $('#room-code').css('display', 'block')
@@ -96,8 +133,9 @@ export default class Room {
     }
 
     // Turn the loading animation on or off.
-    load(show) {
-        $('#load').css('display', (show ? 'block' : 'none'))
+    load(show, loadMessage) {
+        $('#load').css('display', (show ? 'block' : 'none'));
+        $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
     }
 
     // Get the creator code from the relevant form field.
@@ -107,6 +145,7 @@ export default class Room {
 
     // Call CreateRoom API and get a public IP.
     async createRoom(creatorCode) {
+        this.load(true, "Launching instance (2/4)")
         let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
             method: 'POST',
             headers: {

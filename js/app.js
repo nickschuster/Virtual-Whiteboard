@@ -56,7 +56,7 @@ export default class App {
 
         switchButton.setAttribute('class', 'switch-canvas')
         switchButton.setAttribute('id', canvasId)
-        switchButton.textContent = canvasId
+        switchButton.textContent = "Whiteboard " + this.canvasCount
 
         editImg.setAttribute('class', 'edit-canvas')
         editImg.setAttribute('src', './img/edit.png')
@@ -214,6 +214,12 @@ export default class App {
         }
     }
 
+    // Turn the loading animation on or off.
+    load(show, loadMessage) {
+        $('#load').css('display', (show ? 'block' : 'none'));
+        $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
+    }
+
     // Sets up the JQuery listeners based on type of app (Host or Client).
     setUpListeners(type) {
 
@@ -335,7 +341,7 @@ export default class App {
             })
             $('#paste').on('click', () => {
                 // Paste the saved selection at the new location.
-                $('#load').show();
+                this.load(true, "Pasting...");
                 if(this.copy && this.activeCanvas) {
                     // Paste the most recent copy.
                     let containerPos = $('#copypaste-container').offset()
@@ -357,7 +363,7 @@ export default class App {
 
                     this.activeCanvas.reDraw()   
                 }
-                $('#load').hide();
+                this.load(false);
             })
 
             // Rename and delete a canvas.
