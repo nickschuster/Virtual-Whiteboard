@@ -117,6 +117,7 @@ export default class App {
     //
     // Takes an ID of a canvas to show.
     hideAllExceptOne(canvasToShow) {
+        this.changeTitle(canvasToShow);
         this.canvasList.forEach(canvas => {
             if(canvas.canvasId == canvasToShow) {
                 this.activeCanvas = canvas;
@@ -181,6 +182,7 @@ export default class App {
     // Edit the name of a canvas.
     editCanvasName(canvasId, renameText) {
         $(`button#${canvasId}`).text(renameText);
+        this.changeTitle(canvasId);
     }
 
     // Delete a canvas.
@@ -198,7 +200,18 @@ export default class App {
            this.switchCanvas({target: {id: this.canvasList[0].canvasId}})
        } else {
            this.activeCanvas = null;
+           this.changeTitle();
        }
+    }
+
+    // Change the canvas title.
+    changeTitle(canvasId) {
+        let titleText = $(`button#${canvasId}`).text()
+        if(titleText) {
+            $("#canvas-title").text(titleText)
+        } else {
+            $("#canvas-title").text("")
+        }
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -296,7 +309,15 @@ export default class App {
                     this.cpLocLeft = minX
                     this.cpLocTop = minY
 
+                    let prevIndex = 0;
                     for(let i = 0; i < this.activeCanvas.clickX.length; i++) {
+
+                        // Add an empty click to seperate lines.
+                        if(!(i === prevIndex)) {
+                                this.copy.push(undefined);
+                                prevIndex = i;
+                        }
+
                         if(this.activeCanvas.clickX[i] <= maxX && this.activeCanvas.clickX[i] >= minX 
                             && this.activeCanvas.clickY[i] <= maxY && this.activeCanvas.clickY[i] >= minY) {
                             
@@ -306,6 +327,8 @@ export default class App {
                                 dragging: this.activeCanvas.clickDrag[i],
                                 tool: this.activeCanvas.tools[i]
                             })
+
+                            prevIndex += 1;
                         }
                     }
                 }
@@ -322,10 +345,14 @@ export default class App {
                     this.activeCanvas.addClick()
 
                     this.copy.forEach(click => {
-                        let newClickX = click.clickX + leftOffset
-                        let newClickY = click.clickY + topOffset
+                        if(click) {
+                            let newClickX = click.clickX + leftOffset
+                            let newClickY = click.clickY + topOffset
 
-                        this.activeCanvas.addClick(newClickX, newClickY, click.dragging, click.tool)
+                            this.activeCanvas.addClick(newClickX, newClickY, click.dragging, click.tool)
+                        } else {
+                            this.activeCanvas.addClick()
+                        }
                     })
 
                     this.activeCanvas.reDraw()   

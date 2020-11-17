@@ -6,14 +6,49 @@ html {
     user-select: none;
 }
 
+#background {
+    z-index: 500;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%);
+    background-image: url("../img/defaultbg.png");
+    width: 500px;
+    height: 500px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+@media only screen and (max-width: 600px) {
+    #background {
+        width: 250px;
+        height: 250px;
+    }
+}
+
 canvas {
     display: block;
     padding: 0px;
     margin: 0;
+    z-index: 1000;
+    background-color: #ececec;
 }
 
 button, input[type='color'], input[type='range'] {
     cursor: pointer;
+}
+
+#canvas-title {
+    position: absolute;
+    top: 1%;
+    left: 50%;
+    transform: translate(-50%);
+    width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    z-index: 1000;
 }
 
 #button-container {
@@ -59,6 +94,7 @@ button, input[type='color'], input[type='range'] {
 }
 
 #canvas-container {
+    z-index: 900;
     overflow: auto;
     padding: 20px;
     width: 100%;

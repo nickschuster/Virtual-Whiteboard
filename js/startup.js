@@ -19,12 +19,10 @@ window.onload = () => {
             // SCROLLING WHILE BEING THE CLIENT!!! - done
     
             // Copy and paste of selection - done - may want to redo UI lol. 
+            // Renaming/Deleting of Canvases - Mobile disable button. - done
+            // Copy and paste bug with continuing lines. - done - may want to look into refactoring to image copy/paste
     
     // TODO:
-    
-    // Renaming/Deleting of Canvases - Mobile disable button.
-
-    // Copy and paste bug with continuing lines.
 
     // Canvas title and no canvas selected image.
     // Loading text/Steps/Timer
