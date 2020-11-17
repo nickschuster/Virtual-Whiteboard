@@ -26,11 +26,10 @@ window.onload = () => {
             // Rebrand canvas as whitebaord across app.
             // Change the drawing function to only draw changes
             // Room code translation.
+            // Send history to new joiners
+            // Reconnections / Service interuptions.  
             
     // TODO:
-
-    // Send history to new joiners
-    // Reconnections / Service interuptions.  
 
     // Room list with nicknames
     // Ask question

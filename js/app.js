@@ -84,7 +84,7 @@ export default class App {
     }
 
     // Button listener for creating a new canvas.
-    createCanvas(event) {
+    createCanvas(event, reconnect) {
         // Get and create the required elements.
 
         // Create the canvas
@@ -110,7 +110,9 @@ export default class App {
         // Hide all other canvases.
         this.hideAllExceptOne(canvasId);
 
-        document.dispatchEvent(new CustomEvent(CREATE_EVENT))
+        if(!reconnect) {
+            document.dispatchEvent(new CustomEvent(CREATE_EVENT))
+        }
     }
 
     // Hide all canvases except the one specified.
@@ -131,16 +133,18 @@ export default class App {
     // Switch to a specific canvas.
     //
     // Takes a click event.
-    switchCanvas(event) {
+    switchCanvas(event, reconnect) {
         let canvasId = event.target.id;
         this.hideAllExceptOne(canvasId);
         this.activeCanvas.reDraw();
 
-        document.dispatchEvent(new CustomEvent(SWITCH_EVENT, {
-            detail: {
-                canvasId: canvasId
-            }
-        }))
+        if(!reconnect) {
+            document.dispatchEvent(new CustomEvent(SWITCH_EVENT, {
+                detail: {
+                    canvasId: canvasId
+                }
+            }))
+        }
     }
 
     // Record a click and start painting.

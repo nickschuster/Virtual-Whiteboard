@@ -25,6 +25,17 @@
     <!-- Background image. -->
     <div id="background"></div>
 
+    <!-- Reconnection popup. -->
+    <div id="reconnect-wrapper">
+      <div class="canvas-popup" id="reconnection">
+        <h3 class="popup-title">Service Interuption</h3>
+        <hr>
+        <p id="reconnect-message">We have detected a service interuption from room: <span id="room-code-disconnect"></span></p>
+        <button id="reconnect">Reconnect</button>
+        <button id="cancel-reconnect">Cancel</button>
+      </div>
+    </div>
+
     <!-- Canvas renaming popup. -->
     <div class="canvas-popup" id="rename-canvas">
       <h3 class="popup-title">Rename <span id="canvas-name-rename"></span>?</h3>

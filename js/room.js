@@ -1,14 +1,19 @@
 // Create / Join a room.
 import { devserver } from "./devserver.js"
 import App from "./app.js"
-import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT } from "./events.js"
+import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT, HISTORY_EVENT } from "./events.js"
 
 export default class Room {
 
     constructor() {
 
-        // Create the relevant listeners.
-        this.setUpListeners()
+        // Check if this is a reconnect from a teacher.
+        if(this.reconnection()) {
+            this.reconnect()
+        } else {
+            // Create the relevant listeners.
+            this.setUpListeners()
+        }
     }
 
     // Creates the room control listeners.
@@ -24,24 +29,7 @@ export default class Room {
                 const serverIp = '192.168.0.101'
                 const socket = this.createHostSocket(`ws://${serverIp}:3000`)
     
-                socket.on('connect', () => {
-                    console.log("Connected.")
-
-                    this.load(true, "Connected. (4/4)")
-    
-                    this.load(false)
-                    this.showRoomCode(this.ipToRoom(serverIp))
-                    
-                    socket.emit(JOIN_EVENT, HOST);
-                    $("#login").css("display", "none")
-    
-                    let app = new App(HOST)
-                    this.setUpHostSocket(socket)
-                })
-
-                socket.on("connect_error", error => {
-                    console.log(error)
-                })
+                this.hostSocketSetup(socket, serverIp)
 
             } catch(e) {
                 this.load(false)
@@ -60,6 +48,7 @@ export default class Room {
                 this.load(true, "Connecting... (2/3)")
     
                 socket.on('connect', () => {
+                    this.deleteSavedConnection()
                     this.load(true, "Getting room history (3/3)")
                     this.load(false)
     
@@ -102,7 +91,6 @@ export default class Room {
 
     // Translate from room code to ip.
     roomToIp(roomCode) {
-        console.log(roomCode)
         let hexes = []
         let temp = ""
         for(let i = 0; i < roomCode.length; i++) {
@@ -158,6 +146,77 @@ export default class Room {
         return publicIp
     }
 
+    // Check if this is a reconnect.
+    reconnection() {
+        console.log(document.cookie)
+        if(document.cookie === "") {
+            return false
+        }
+        return true
+    }
+
+    // Reconnect to the room that experienced a service interuption.
+    reconnect() {
+        let serverIp = document.cookie.split("=")[1]
+        $("#room-code-disconnect").text(this.ipToRoom(serverIp))
+        $("#reconnect-wrapper").show();
+        $("#reconnect").on("click", event => {
+            try {
+                let socket = this.createHostSocket(`ws://${serverIp}:3000`)
+                this.hostSocketSetup(socket, serverIp)
+                socket.emit(HISTORY_EVENT)
+            } catch (e) {
+                this.load(false)
+                this.showError(e)
+            }   
+            $("#reconnect-wrapper").hide();
+            $( this ).off( event );
+        })
+        $("#cancel-reconnect").on("click", event => {
+            this.setUpListeners()
+            $("#reconnect-wrapper").hide();
+            $( this ).off( event );
+        })
+    }
+
+    // Save the connection details incase of a service interuption.
+    saveConnection(serverIp) {
+        var date = new Date();
+        date.setTime(date.getTime()+(5*60*1000))
+        document.cookie = "serverIp="+serverIp+"; expires="+date.toGMTString()
+    }
+
+    // If you joined a room delete any saved connections.
+    deleteSavedConnection() {
+        let date = new Date();
+        document.cookie = "serverIp=;" +"expires="+date.toGMTString()
+    }
+
+    // Create the inital socket listners.
+    hostSocketSetup(socket, serverIp) {
+        socket.on('connect', () => {
+            // Save connection in case there is a service interuption.
+            this.saveConnection(serverIp)
+
+            this.load(true, "Connected. (4/4)")
+
+            this.load(false)
+            this.showRoomCode(this.ipToRoom(serverIp))
+            
+            socket.emit(JOIN_EVENT, HOST);
+            $("#login").css("display", "none")
+
+            let app = new App(HOST)
+            this.setUpHostSocket(socket)
+            // Add the same listners as the client for reconnections/interuptions
+            this.setUpClientSocket(socket, app, true)
+        })
+
+        socket.on("connect_error", error => {
+            console.log(error)
+        })
+    }
+
     // Create the client socket.
     createClientSocket(serverIp) {
         let socket = io(serverIp, {
@@ -202,19 +261,19 @@ export default class Room {
     }
 
     // Setup listeners for revieving host transmissions.
-    setUpClientSocket(socket, app) {
+    setUpClientSocket(socket, app, reconnect) {
         socket.on(CREATE_EVENT, () => {
-            app.createCanvas(null)
+            app.createCanvas(null, reconnect)
         })
 
         socket.on(SWITCH_EVENT, canvasId => {
-            app.hideAllExceptOne(canvasId)
+            app.hideAllExceptOne(canvasId, reconnect)
         })
 
         socket.on(DRAW_EVENT, clickData => {
             app.canvasList.forEach(canvas => {
                 if(canvas.canvasId === clickData.canvasId) {
-                    canvas.addClick(clickData.mouseX, clickData.mouseY, clickData.dragging, clickData.tool)
+                    canvas.addClick(clickData.mouseX, clickData.mouseY, clickData.dragging, clickData.tool, reconnect)
                 }
             })
             app.activeCanvas.reDraw()
