@@ -36,6 +36,9 @@ export default class App {
         this.copy = []
         this.cpLocTop = 0;
         this.cpLocLeft = 0;
+
+        // Contains the current room list.
+        this.roomList = [];
     }
 
     // Create all the resource controls for a canvas.
@@ -222,6 +225,25 @@ export default class App {
     load(show, loadMessage) {
         $('#load').css('display', (show ? 'block' : 'none'));
         $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
+    }
+
+    // Update the room list.
+    updateRoomList(roomList, yourId) {
+        $(".room-entry").remove()
+        this.roomList = roomList
+        roomList.forEach(toAdd => {
+            this.addToRoom({name: toAdd.joiner.name, id: toAdd.id}, yourId == toAdd.id ? true : false, toAdd.joiner.type == HOST ? true : false)
+        })
+    }
+
+    // Add someone to the room list.
+    addToRoom(toAdd, isYou, isHost) {
+        let roomEntry = document.createElement("div");
+        let container = document.getElementById("room-entries");
+        roomEntry.textContent = toAdd.name + " " + (isYou ? "(You)" : "") + " " + (isHost ? "(Host)" : "")
+        roomEntry.setAttribute("id", toAdd.id)
+        roomEntry.setAttribute("class", "room-entry")
+        container.appendChild(roomEntry);
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).

@@ -118,6 +118,8 @@ button, input[type='color'], input[type='range'] {
     margin: 0px;
     overflow-x: scroll;
     white-space: nowrap;
+    width: 210px;
+    text-align: center;
 }
 
 .canvas-popup {
@@ -331,7 +333,6 @@ button, input[type='color'], input[type='range'] {
     font-size: 30px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: scroll;
 }
 
 #reconnect-wrapper {
@@ -349,4 +350,8 @@ button, input[type='color'], input[type='range'] {
 
 #reconnect-message {
     width: 200px;
+}
+
+#room-list {
+    padding: 20px;
 }

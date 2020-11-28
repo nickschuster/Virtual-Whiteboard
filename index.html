@@ -75,6 +75,7 @@
     <div id="login">
       <div id="room-controls">
         <h1>Virtual Whiteboard</h1>
+        <input class="room-control" id="nickname" type="text" name="nickname" placeholder="Name ..." /><br />
         <input class="room-control" id="creator-code" type="text" name="creator-code" placeholder="Creator code ..."/><br />
         <button class="room-control" id="create-room">Create Room</button><br />
         <input class="room-control" id="join-code" type="text" name="room-code" placeholder="Room code ..."/><br />
@@ -116,6 +117,13 @@
             <input type="range" min="1" max="100" value="50" class="slider" id="tool-size"><br/>
             <label for="tool-color">Color: </label>
             <input type="color" id="tool-color" name="favcolor" value="#ff0000">
+          </div>
+
+          <br>
+        
+          <div id="room-list">
+            <div>Room list:</div>
+            <div id="room-entries"></div>
           </div>
         </div>
       </div>
