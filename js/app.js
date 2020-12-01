@@ -1,6 +1,6 @@
 // Controls the tools and canvas interactions.
 import Canvas from './canvas.js';
-import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST, RENAME_EVENT, DELETE_EVENT } from "./events.js"
+import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST, RENAME_EVENT, DELETE_EVENT, QUESTION_EVENT } from "./events.js"
 import { Tool } from './tool.js'
 
 export default class App {
@@ -39,6 +39,14 @@ export default class App {
 
         // Contains the current room list.
         this.roomList = [];
+
+        // Question container location information.
+        this.questionTop = 0;
+        this.questionLeft = 0;
+        this.moveQuestion = false;
+    
+        // Keep track of current questions.
+        this.questions = []
     }
 
     // Create all the resource controls for a canvas.
@@ -122,6 +130,7 @@ export default class App {
     //
     // Takes an ID of a canvas to show.
     hideAllExceptOne(canvasToShow) {
+        this.showQuestions(canvasToShow);
         this.changeTitle(canvasToShow);
         this.canvasList.forEach(canvas => {
             if(canvas.canvasId == canvasToShow) {
@@ -244,6 +253,32 @@ export default class App {
         roomEntry.setAttribute("id", toAdd.id)
         roomEntry.setAttribute("class", "room-entry")
         container.appendChild(roomEntry);
+    }
+
+    // Display an asked question.
+    askQuestion(question, questionId) {
+        let newQuestion = document.getElementById("question-content-container").cloneNode(true)
+        newQuestion.setAttribute("questionid", questionId)
+        newQuestion.style.top = question.offset.top + 'px'
+        newQuestion.style.left = question.offset.left + 'px'
+        newQuestion.style.display = question.canvas == this.activeCanvas.canvasId ? "block" : "none"
+        newQuestion.childNodes[3].textContent = `${question.name} asks: ${question.content}`
+        $(`#canvas-container`).append(newQuestion)
+        this.questions.push({
+            canvasId: question.canvas,
+            questionId: questionId
+        })
+    }
+
+    // Show all the questions for a specific canvas.
+    showQuestions(canvasId) {
+        this.questions.forEach(question => {
+            if(question.canvasId == canvasId) {
+                $(`[questionid="${question.questionId}"]`).css("display", "block")
+            } else {
+                $(`[questionid="${question.questionId}"]`).css("display", "none")
+            }
+        })
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -522,10 +557,67 @@ export default class App {
 
         } else if (type === CLIENT) {
             $('#tool-container').hide()
+            $('#ask-question-container').show()
 
             $(document).on("click", "button.switch-canvas", event => {
                 this.switchCanvas(event)
             });
+
+            // Asking a question and the question container movement.
+            $('#ask-question').on("click", event => {
+                if(this.activeCanvas) {
+                    $("#question-container").toggle()
+                    // Ask and cancel listeners.
+                    $("#ask").on('click', event => {
+                        let questionOffset = $("#question-container").offset()
+                        let containerLeft = $("#canvas-container").scrollLeft()
+                        let containerTop = $("#canvas-container").scrollTop()
+                        document.dispatchEvent(new CustomEvent(QUESTION_EVENT, {
+                            detail: {
+                                canvas: this.activeCanvas.canvasId,
+                                offset: {
+                                    top: questionOffset.top + containerTop,
+                                    left: questionOffset.left + containerLeft
+                                },
+                                content: $("#question-input").val()
+                            }
+                        }))
+    
+                        $("#question-container").hide()
+                        $(this).off(event)
+                    })
+                    $("#cancel-ask").on('click', event => {
+                        $("#question-container").hide()
+                        $(this).off(event)
+                    })
+                }
+            })
+            $(document).on("touchstart mousedown", "#question-container", event => {
+                // Save initial click position and start moving.
+                this.questionLeft = event.clientX ? event.clientX : event.touches[0].clientX;
+                this.questionTop = event.clientY ? event.clientY : event.touches[0].clientY;
+                this.moveQuestion = true;
+            })
+            $(document).on("touchmove mousemove", "#question-container", event => {
+                // Move the container.
+                if(this.moveQuestion) {
+                    let containerPos = $('#question-container').offset()
+                    let moveX = ((event.clientX ? event.clientX : event.touches[0].clientX) 
+                        - this.questionLeft) + containerPos.left
+                    let moveY = ((event.clientY ? event.clientY : event.touches[0].clientY) 
+                        - this.questionTop) + containerPos.top
+
+                    this.questionLeft = (event.clientX ? event.clientX : event.touches[0].clientX)
+                    this.questionTop = (event.clientY ? event.clientY : event.touches[0].clientY) 
+                    
+                    $('#question-container').css("top", `${moveY}px`)
+                    $('#question-container').css("left", `${moveX}px`)
+                }
+            })
+            $(document).on("touchend mouseup", event => {
+                // Stop moving the container.
+                this.moveQuestion = false
+            })
 
             // MOBILE //
 

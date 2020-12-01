@@ -27,19 +27,20 @@ window.onload = () => {
         // Reconnections / Service interuptions.  
         // Room list with nicknames
         // Overflow scroll is broken
+        // Ask question
             
     // TODO:
 
-        // Ask question
         // Be notified of question 
         // View question
         // Jump to next question
         // Mute and kick
-
         // Save a canvas as an image
         // Text/Latex Integeration
+
         // Smooth drawing
         // Revisit copy paste
+        // Revisit draw controls
 
         // UI / Mobile 
             // Highlight the current HOST canvas.

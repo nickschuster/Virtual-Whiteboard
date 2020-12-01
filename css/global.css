@@ -355,3 +355,23 @@ button, input[type='color'], input[type='range'] {
 #room-list {
     padding: 20px;
 }
+
+#ask-question-container {
+    padding: 20px;
+    display: none;
+}
+
+.question-container {
+    display: none;
+    position: absolute;
+    z-index: 1500;
+    border: 1px solid black;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+}
+
+.question-icon {
+    font-size: 50px;
+    font-weight: bold;
+}

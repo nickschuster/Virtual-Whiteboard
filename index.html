@@ -65,6 +65,23 @@
       <div id="resize"></div>
     </div>
 
+    <!-- Asking a question box. -->
+    <div class="question-container" id="question-container">
+      <div class="question-icon">?</div>
+      <input id="question-input" type="text">
+      <br>
+      <br>
+      <button id="ask">Ask</button>
+      <button id="cancel-ask">Cancel</button>
+    </div>
+
+    <!-- Showing a question box. -->
+    <div class="question-container" id="question-content-container">
+      <div class="question-icon">?</div>
+      <div id="question-content"></div>
+      <button id="dismiss-question">Dismiss</button>
+    </div>
+
     <!-- Loading animation. -->
     <div id="load">
       <div id="loader"></div>
@@ -106,6 +123,10 @@
             <button id="create-canvas">Create a new Whiteboard</button>
             <br/>
             <br/>
+          </div>
+
+          <div id="ask-question-container">
+            <button id="ask-question">Ask A Question</button>
           </div>
 
           <div id="tool-container">

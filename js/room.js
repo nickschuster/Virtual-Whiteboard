@@ -1,7 +1,7 @@
 // Create / Join a room.
 import { devserver } from "./devserver.js"
 import App from "./app.js"
-import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT, HISTORY_EVENT, ROOM_EVENT } from "./events.js"
+import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT, HISTORY_EVENT, ROOM_EVENT, QUESTION_EVENT } from "./events.js"
 
 export default class Room {
 
@@ -274,6 +274,16 @@ export default class Room {
 
     // Setup listeners for revieving host transmissions.
     setUpClientSocket(socket, app, reconnect) {
+
+        document.addEventListener(QUESTION_EVENT, event => {
+            event.detail.name = this.nickname
+            socket.emit(QUESTION_EVENT, event.detail)
+        })
+
+        socket.on(QUESTION_EVENT, event => {
+            app.askQuestion(event.question, event.questionId)
+        })
+
         socket.on(CREATE_EVENT, () => {
             app.createCanvas(null, reconnect)
         })
