@@ -34,7 +34,9 @@ window.onload = () => {
         // Be notified of question 
         // View question
         // Jump to next question
+        
         // Mute and kick
+
         // Save a canvas as an image
         // Text/Latex Integeration
 

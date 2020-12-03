@@ -264,10 +264,14 @@ export default class App {
         newQuestion.style.display = question.canvas == this.activeCanvas.canvasId ? "block" : "none"
         newQuestion.childNodes[3].textContent = `${question.name} asks: ${question.content}`
         $(`#canvas-container`).append(newQuestion)
+        
         this.questions.push({
             canvasId: question.canvas,
-            questionId: questionId
+            questionId: questionId,
+            question: question
         })
+
+        if(this.type == HOST) this.notifiyQuestion()
     }
 
     // Show all the questions for a specific canvas.
@@ -279,6 +283,20 @@ export default class App {
                 $(`[questionid="${question.questionId}"]`).css("display", "none")
             }
         })
+        $(".dismiss-question").css("display", this.type == HOST ? "block" : "none")
+    }
+
+    // Notify host of a question.
+    notifiyQuestion() {
+        if(this.questions.length > 0) {
+            $("#jump-question").show()
+            // TODO
+        }
+    }
+
+    // Remove a question from the list.
+    removeQuestion(question) {
+        console.log(question.getAttribute("questionid"))
     }
 
     // Sets up the JQuery listeners based on type of app (Host or Client).
@@ -505,6 +523,18 @@ export default class App {
 
                 this.stopPaint(event);
             });
+
+            // Question control.
+            $("#next-question").on("click", event => {
+                let question = this.questions[0]
+                
+                this.switchCanvas({target: {id: question.canvasId}})
+                $(`[questionid="${question.questionId}"]`).get(0).scrollIntoView()
+                // This can be made better
+            })
+            $(document).on("click", "button.dismiss-question", event => {
+                this.removeQuestion(event.target.parentNode)
+            })
 
             /// MOBILE ///
 
