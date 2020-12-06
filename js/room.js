@@ -1,10 +1,12 @@
-// Create / Join a room.
-import { devserver } from "./devserver.js"
 import App from "./app.js"
 import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT, HISTORY_EVENT, ROOM_EVENT, QUESTION_EVENT } from "./events.js"
 
+/** Class representing network interactions as a Room. */
 export default class Room {
 
+    /**
+     * @constructor
+     */
     constructor() {
 
         // Check if this is a reconnect from a teacher.
@@ -12,73 +14,63 @@ export default class Room {
             this.reconnect()
         } else {
             // Create the relevant listeners.
-            this.setUpListeners()
+            this.documentListeners()
         }
 
         this.nickname = ""
     }
 
-    // Creates the room control listeners.
-    setUpListeners() {
-        $("#create-room").on('click', async (event) => {
-    
-            try {
-                this.checkName()
-                const creatorCode = this.getCreatorCode();
-                this.load(true, "Looking up creator code (1/4)")
-                // const serverIp = await this.createRoom(creatorCode);
-                this.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
-                const serverIp = '192.168.0.101'
-                const socket = this.createHostSocket(`ws://${serverIp}:3000`)
-    
-                this.hostSocketSetup(socket, serverIp)
+    /**
+     * Join a room as a client.
+     */
+    joinRoom() {
+        try {
+            this.checkName()
+            this.load(true, "Looking up room (1/3)")
+            const serverIp = this.roomToIp(this.getRoomCode())
+            const socket = this.createClientSocket(`ws://${serverIp}:3000`)
+            this.load(true, "Connecting... (2/3)")
 
-            } catch(e) {
-                this.load(false)
-                this.showError(e)
-            }
-            
-            
-        })
-    
-        // Join a room.
-        $("#join-room").on("click", event => {
-            try {
-                this.checkName()
-                this.load(true, "Looking up room (1/3)")
-                const roomCode = this.roomToIp(this.getRoomCode())
-                const socket = this.createClientSocket(`ws://${roomCode}:3000`)
-                this.load(true, "Connecting... (2/3)")
-    
-                socket.on('connect', () => {
-                    this.deleteSavedConnection()
-                    this.load(true, "Getting room history (3/3)")
-                    this.load(false)
-    
-                    socket.emit(JOIN_EVENT, {type: CLIENT, name: this.nickname})
-                    $("#login").css("display", "none")
-    
-                    let app = new App(CLIENT)
-                    this.setUpClientSocket(socket, app)
-                })
-    
-                socket.on('connect_error', error => {
-                    this.load(false)
-                    alert("Could not connect to room: " + error)
-                })
-            } catch(e) {
-                this.load(false)
-                this.showError(e)
-            }
-        })
+            this.socketSetup(socket, serverIp, CLIENT)
+        } catch(e) {
+            this.load(false)
+            this.showError(e)
+        }
     }
 
-    // Get the entered room code.
+    /**
+     * Create a room as a host. 
+     */
+    createRoom() {
+        try {
+            this.checkName()
+            const creatorCode = this.getCreatorCode();
+            this.load(true, "Looking up creator code (1/4)")
+            // const serverIp = await this.createServer(creatorCode);
+            this.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
+            const serverIp = '192.168.0.101'
+            const socket = this.createHostSocket(`ws://${serverIp}:3000`)
+
+            this.socketSetup(socket, serverIp, HOST)
+        } catch(e) {
+            this.load(false)
+            this.showError(e)
+        }
+    }
+
+    /**
+     * Get the room code to join.
+     * @return {String} - The join code.
+     */
     getRoomCode() {
         return $('#join-code').val()
     }
 
-    // Translate from ip to room code.
+    /**
+     * Translate a string IP to a room code.
+     * @param {String} ip - The IP to translate.
+     * @return {String} - The translated room code.
+     */
     ipToRoom(ip) {
         let numbers = ip.split(".")
         let roomCode = ""
@@ -92,7 +84,11 @@ export default class Room {
         return roomCode
     }
 
-    // Translate from room code to ip.
+    /**
+     * Translate a string room code to a server IP.
+     * @param {String} roomCode - The room code to translate.
+     * @return {String} - The translated IP.
+     */
     roomToIp(roomCode) {
         let hexes = []
         let temp = ""
@@ -112,30 +108,47 @@ export default class Room {
         return ip.join(".")
     }
 
-    // Show the current room code.
+    /**
+     * Update the room code.
+     * @param {String} code 
+     */
     showRoomCode(code) {
         $('#room-code').css('display', 'block')
         $('#code').text(code)
     }
 
-    // Show an error.
+    /**
+     * Display an error. 
+     * @param {String} e - The error message. 
+     */
     showError(e) {
         alert(e)
     }
 
-    // Turn the loading animation on or off.
+    /**
+     * Control the loading animation.
+     * @param {boolean} show - Whether or not to show load. 
+     * @param {*} loadMessage - A loading message.
+     */
     load(show, loadMessage) {
         $('#load').css('display', (show ? 'block' : 'none'));
         $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
     }
 
-    // Get the creator code from the relevant form field.
+    /**
+     * Get the creator code.
+     * @return {String} - The creator code.
+     */
     getCreatorCode() {
         return $('#creator-code').val()
     }
 
-    // Call CreateRoom API and get a public IP.
-    async createRoom(creatorCode) {
+    /**
+     * Calls the Virtual Whiteboard API and creates a room if provided with a valid room code.
+     * @param {String} creatorCode - The password code to create a room. 
+     * @return {String} - The IP of the created server/room.
+     */
+    async createServer(creatorCode) {
         this.load(true, "Launching instance (2/4)")
         let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
             method: 'POST',
@@ -149,7 +162,10 @@ export default class Room {
         return publicIp
     }
 
-    // Check if this is a reconnect.
+    /**
+     * Check if there exists a saved connection.
+     * @return {boolean} - If a saved connection exists or not.
+     */
     reconnection() {
         if(document.cookie === "") {
             return false
@@ -157,7 +173,9 @@ export default class Room {
         return true
     }
 
-    // Reconnect to the room that experienced a service interuption.
+    /**
+     * Reconnect a host to a disconnected room
+     */
     reconnect() {
         let serverIp = document.cookie.split("=")[1]
         $("#room-code-disconnect").text(this.ipToRoom(serverIp))
@@ -166,7 +184,7 @@ export default class Room {
             try {
                 this.checkName();
                 let socket = this.createHostSocket(`ws://${serverIp}:3000`)
-                this.hostSocketSetup(socket, serverIp)
+                this.socketSetup(socket, serverIp, HOST)
                 socket.emit(HISTORY_EVENT)
             } catch (e) {
                 this.load(false)
@@ -176,26 +194,33 @@ export default class Room {
             $( this ).off( event );
         })
         $("#cancel-reconnect").on("click", event => {
-            this.setUpListeners()
+            this.documentListeners()
             $("#reconnect-wrapper").hide();
             $( this ).off( event );
         })
     }
 
-    // Save the connection details incase of a service interuption.
+    /**
+     * Save a connection to a cookie.
+     * @param {String} serverIp 
+     */
     saveConnection(serverIp) {
         var date = new Date();
         date.setTime(date.getTime()+(5*60*1000))
         document.cookie = "serverIp="+serverIp+"; expires="+date.toGMTString()
     }
 
-    // If you joined a room delete any saved connections.
+    /**
+     * Delete the saved connection cookie.
+     */
     deleteSavedConnection() {
         let date = new Date();
         document.cookie = "serverIp=;" +"expires="+date.toGMTString()
     }
 
-    // Make sure a nickname is provided.
+    /**
+     * Ensure a name is provided.
+     */
     checkName() {
         let name = $("#nickname").val();
         if(name == "") throw Error("You must provide a nickname.")
@@ -204,32 +229,56 @@ export default class Room {
         }
     }
 
-    // Create the inital socket listners.
-    hostSocketSetup(socket, serverIp) {
-        socket.on('connect', () => {
-            // Save connection in case there is a service interuption.
-            this.saveConnection(serverIp)
-
-            this.load(true, "Connected. (4/4)")
-
-            this.load(false)
-            this.showRoomCode(this.ipToRoom(serverIp))
-            
-            socket.emit(JOIN_EVENT, {type: HOST, name: this.nickname});
-            $("#login").css("display", "none")
-
-            let app = new App(HOST)
-            this.setUpHostSocket(socket)
-            // Add the same listners as the client for reconnections/interuptions
-            this.setUpClientSocket(socket, app, true)
-        })
-
-        socket.on("connect_error", error => {
-            console.log(error)
-        })
+    /**
+     * 
+     * @param {SocketIO} socket - The socket which to setup. 
+     * @param {String} serverIp - The IP address of the server to connect to.
+     * @param {Number} type - The type of user/socket.
+     */
+    socketSetup(socket, serverIp, type) {
+        if(type == HOST) {
+            socket.on('connect', () => {
+                // Save connection in case there is a service interuption.
+                this.saveConnection(serverIp)
+    
+                this.load(true, "Connected. (4/4)")
+    
+                this.load(false)
+                this.showRoomCode(this.ipToRoom(serverIp))
+                
+                socket.emit(JOIN_EVENT, {type: HOST, name: this.nickname});
+                $("#login").css("display", "none")
+    
+                let app = new App(HOST)
+                this.hostSocketListeners(socket)
+                // Add the same listners as the client for reconnections/interuptions
+                this.clientSocketListeners(socket, app, true)
+            })
+        } else if(type == CLIENT) {
+            socket.on('connect', () => {
+                this.deleteSavedConnection()
+                this.load(true, "Getting room history (3/3)")
+                this.load(false)
+    
+                socket.emit(JOIN_EVENT, {type: CLIENT, name: this.nickname})
+                $("#login").css("display", "none")
+    
+                let app = new App(CLIENT)
+                this.clientSocketListeners(socket, app)
+            })
+    
+            socket.on('connect_error', error => {
+                this.load(false)
+                alert("Could not connect to room: " + error)
+            })
+        }   
     }
 
-    // Create the client socket.
+    /**
+     * Create the client socket with the client configuration.
+     * @param {String} serverIp - The IP address of the server to connect to.
+     * @return {SocketIO} - The created socket.
+     */
     createClientSocket(serverIp) {
         let socket = io(serverIp, {
             rejectUnauthorized: false,
@@ -238,7 +287,11 @@ export default class Room {
         return socket
     }
 
-    // Create the host socket.
+    /**
+     * Create the client socket with the client configuration.
+     * @param {String} serverIp - The IP address of the server to connect to.
+     * @return {SocketIO} - The created socket.
+     */
     createHostSocket(serverIp) {
         let socket = io(serverIp, {
             rejectUnauthorized: false,
@@ -249,8 +302,11 @@ export default class Room {
         return socket
     }
 
-    // Setup listeners for transmission events.
-    setUpHostSocket(socket) {
+    /**
+     * Create the host socket events and listeners.
+     * @param {SocketIO} socket - The socket which to register and send events to.
+     */
+    hostSocketListeners(socket) {
         document.addEventListener(DRAW_EVENT, event => {
             socket.emit(DRAW_EVENT, event.detail)
         })
@@ -272,8 +328,13 @@ export default class Room {
         })
     }
 
-    // Setup listeners for revieving host transmissions.
-    setUpClientSocket(socket, app, reconnect) {
+    /**
+     * Create client socket events and listeners.
+     * @param {SocketIO} socket - The socket to register and send events to.
+     * @param {App} app - The app to act out events on.
+     * @param {boolean} reconnect - Is a reconnection happening.
+     */
+    clientSocketListeners(socket, app, reconnect) {
 
         document.addEventListener(QUESTION_EVENT, event => {
             event.detail.name = this.nickname
@@ -311,6 +372,22 @@ export default class Room {
 
         socket.on(ROOM_EVENT, roomList => {
             app.updateRoomList(roomList, socket.id)
+        })
+    }
+
+    /**
+     * Creates the event delegators.
+     */
+    documentListeners() {
+        // Room click event delegator.
+        $(document).on("click", event => {
+            if(event.target.matches("#create-room")) {
+                this.createRoom()
+            }
+
+            if(event.target.matches("#join-room")) {
+                this.joinRoom()
+            }
         })
     }
 }

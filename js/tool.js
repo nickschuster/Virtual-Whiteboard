@@ -1,4 +1,4 @@
-// Specifies the different kind of tool arrangments.
+/** An object that contains all relevant tool information. */
 export let Tool = {
     draw: {
         lineWidth: 1,

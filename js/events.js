@@ -1,4 +1,4 @@
-// Networking constants
+/** Networking constants and event flags. */
 
 export const HOST = 1
 export const CLIENT = 0

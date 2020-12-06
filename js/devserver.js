@@ -1,1 +1,0 @@
-export const devserver = "ws://localhost:3000"

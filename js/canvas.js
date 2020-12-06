@@ -1,5 +1,4 @@
 import { DRAW_EVENT } from "./events.js";
-import { Tool } from './tool.js'
 
 export default class Canvas {
 

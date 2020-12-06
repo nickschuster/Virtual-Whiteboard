@@ -1,11 +1,10 @@
-// This file starts all App processes.
-
-import UI from './ui.js'
+import Menu from './menu.js'
 import Room from './room.js'
 
+/** Starts the Room and UI class lifecycle. */
 window.onload = () => {
 
-    let ui = new UI();
+    let menu = new Menu();
     let room = new Room();
 
     // DONE:
@@ -56,7 +55,4 @@ window.onload = () => {
         // Implement better creator code detection and authorization
 
         // Tls/DNS for rooms?
-    
-
-
 }

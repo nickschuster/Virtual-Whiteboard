@@ -1,8 +1,8 @@
-// Controls the tools and canvas interactions.
 import Canvas from './canvas.js';
 import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST, RENAME_EVENT, DELETE_EVENT, QUESTION_EVENT } from "./events.js"
 import { Tool } from './tool.js'
 
+/** Represents the user controlling an App. */
 export default class App {
 
     constructor(type) {
@@ -21,7 +21,7 @@ export default class App {
 
         // Create the listeners that make the app work.
         this.type = type;
-        this.setUpListeners(this.type)
+        this.documentListeners(this.type)
 
         // The currently active tool.
         this.activeTool = Tool.draw
@@ -190,9 +190,11 @@ export default class App {
 
     // Switch the currently active tool.
     switchTool(event) {
-        this.activeTool = Tool[event.target.id]
-        $('#tool-size').val(this.activeTool.lineWidth)
-        $('#tool-color').val(this.activeTool.strokeStyle)
+        if(this.activeCanvas) {
+            this.activeTool = Tool[event.target.id]
+            $('#tool-size').val(this.activeTool.lineWidth)
+            $('#tool-color').val(this.activeTool.strokeStyle)
+        }
     }
 
     // Edit the name of a canvas.
@@ -299,31 +301,79 @@ export default class App {
         console.log(question.getAttribute("questionid"))
     }
 
-    // Sets up the JQuery listeners based on type of app (Host or Client).
-    setUpListeners(type) {
+    /** 
+     * Change the current tool color.
+     * @param {String} color - Color to change to.  
+     */
+    changeToolColor(color) {
+        this.activeTool.strokeStyle = color
+    }
+
+    /**
+     * Change the current tool size.
+     * @param {Number} size - Size to change to.
+     */
+    changeToolSize(size) {
+        this.activeTool.lineWidth = size
+    }
+
+    /**
+     * Sets up the document event delegators for each type of event.
+     * @param {Number} type - The type of user. 
+     */
+    documentListeners(type) {
+
+        // Click delegator.
+        $(document).on("click", event => {
+            if(type == HOST) {
+                if(event.target.matches(".switch-canvas")) {
+                    this.switchCanvas(event)
+                }
+
+                if(event.target.matches("#create-canvas")) {
+                    this.createCanvas(event)
+                }
+
+                if(event.target.matches(".tool")) {
+                    this.switchTool(event)
+                }
+            }
+        })
+
+        // Change delegator.
+        $(document).on("change", event => {
+            if(type === HOST) {
+                if(event.target.matches("#tool-color")) {
+                    this.changeToolColor(event.target.value)
+                }
+
+                if(event.target.matches("#tool-size")) {
+                    this.changeToolSize(event.target.value)
+                }
+            }
+        })
+
+        // Touchstart and mousemove delegator.
+        $(document).on("touchstart mousemove", event => {
+
+        })
+
+        // Touchmove and mousemove delegator.
+        $(document).on("touchmove mousemove", event => {
+
+        })
+
+        // Touchend and mouseup delegator.
+        $(document).on("touchend mouseup", event => {
+
+        })
+
+        // Mouseleave delegator.
+        $(document).on("mouseleave", event => {
+
+        })
 
         if(type === HOST) {
-            // HTML switch canvas button listeners.
-            $(document).on("click", "button.switch-canvas", event => {
-                this.switchCanvas(event)
-            });
-            $('#create-canvas').on("click", event => {
-                this.createCanvas(event)
-            });
-
-            // Tool listeners.
-            $(document).on('click', 'button.tool', event => {
-                // General tool change.
-                if(this.activeCanvas) this.switchTool(event)
-            })
-            $("#tool-color").on('change', event => {
-                // Color.
-                this.activeTool.strokeStyle = event.target.value
-            })
-            $('#tool-size').on('change', event => {
-                // Size.
-                this.activeTool.lineWidth = event.target.value
-            })
 
             // Copy paste.
             $('#copypaste').on('click', event => {
@@ -538,7 +588,7 @@ export default class App {
 
             /// MOBILE ///
 
-            // Same listeners as above but for mobile.
+            // Drawing listners for mobile.
             $(document).on("touchstart", "canvas", (event) => {
                 if(event.touches.length >= 2) {
                     // Enable scroll
@@ -593,7 +643,7 @@ export default class App {
                 this.switchCanvas(event)
             });
 
-            // Asking a question and the question container movement.
+            // Asking a question and question container movement.
             $('#ask-question').on("click", event => {
                 if(this.activeCanvas) {
                     $("#question-container").toggle()
@@ -665,8 +715,11 @@ export default class App {
             $(document).on("touchmove", "canvas", (event) => {
                 if(this.scroll) {
 
-                    let scrollX = $('#canvas-container').scrollLeft() + (this.scrollLeft - event.touches[0].clientX)/4;
-                    let scrollY = $('#canvas-container').scrollTop() + (this.scrollTop - event.touches[0].clientY)/4;
+                    let scrollX = $('#canvas-container').scrollLeft() + (this.scrollLeft - event.touches[0].clientX);
+                    let scrollY = $('#canvas-container').scrollTop() + (this.scrollTop - event.touches[0].clientY);
+
+                    this.scrollLeft = event.touches[0].clientX
+                    this.scrollTop = event.touches[0].clientY
 
                     document.getElementById('canvas-container').scroll(scrollX, scrollY)
                 }
