@@ -30,18 +30,15 @@ window.onload = () => {
             
     // TODO:
 
-        // Be notified of question 
-        // View question
-        // Jump to next question
-        
-        // Mute and kick
+        // Be notified of question
+        // Hide/show question text  
 
         // Save a canvas as an image
-        // Text/Latex Integeration
 
         // Smooth drawing
         // Revisit copy paste
         // Revisit draw controls
+        // Dismiss questions?
 
         // UI / Mobile 
             // Highlight the current HOST canvas.

@@ -370,6 +370,8 @@ export default class App {
         if(this.questions.length > 0) {
             $("#jump-question").show()
             // TODO
+        } else {
+            $("#jump-question").hide()
         }
     }
 
@@ -378,7 +380,16 @@ export default class App {
      * @param {Event} event - Event that caused the removal. 
      */
     removeQuestion(event) {
-        console.log(event.target.parentNode.getAttribute("questionid"))
+        let toDelete = event.target.parentNode.getAttribute("questionid")
+        let deleteIndex;
+        for(let i = 0; i < this.questions.length; i++) {
+            if(this.questions[i].questionId == toDelete) {
+                deleteIndex = i
+            }      
+        }
+        this.questions.splice(deleteIndex)
+        $(`[questionid="${toDelete}"]`).remove()
+        this.notifiyQuestion()
     }
 
     /** 
@@ -582,9 +593,8 @@ export default class App {
 
     /**
      * Switch view to the next question.
-     * @param {Event} event - Event that caused the switch.
      */
-    nextQuestion(event) {
+    nextQuestion() {
         let question = this.questions[0]
                 
         this.switchCanvas({target: {id: question.canvasId}})
@@ -763,7 +773,7 @@ export default class App {
                 }
 
                 if(event.target.matches("#next-question")) {
-                    this.nextQuestion(event)
+                    this.nextQuestion()
                 }
             } else if(this.type === CLIENT) {
                 if(event.target.matches("#ask-question")) {
@@ -774,7 +784,7 @@ export default class App {
 
         // Touchstart and mousemove delegator.
         $(document).on("touchstart mousedown", event => {
-            if(event.touches.length >= 2) {
+            if(event.touches && event.touches.length >= 2) {
                 this.startCanvasScroll(event)
             }
 
@@ -788,7 +798,7 @@ export default class App {
                 }
 
                 if(event.target.matches("canvas")) {
-                    if(event.touches.length === 1) {
+                    if(!event.touches || event.touches.length === 1) {
                         this.startPaint(event)
                     }
                 }
@@ -807,7 +817,7 @@ export default class App {
             }
 
             if(this.type === HOST) {
-                this.controlCopyPasteMovement()
+                this.controlCopyPasteMovement(event)
                 if(event.target.matches("canvas")) {
                     if(!this.scroll) {
                         this.trackPaint(event)
