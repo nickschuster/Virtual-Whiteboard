@@ -346,7 +346,7 @@ export default class Room {
         })
 
         socket.on(CREATE_EVENT, () => {
-            app.createCanvas(null, reconnect)
+            app.createCanvas(reconnect)
         })
 
         socket.on(SWITCH_EVENT, canvasId => {

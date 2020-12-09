@@ -1,7 +1,12 @@
 import { DRAW_EVENT } from "./events.js";
 
+/** Represent a singular canvas and its drawings. */
 export default class Canvas {
 
+    /**
+     * @constructor
+     * @param {String} canvasId - Canvas ID of this object. 
+     */
     constructor(canvasId) {
         // Where to draw.
         this.context = $(`canvas#${canvasId}`)[0].getContext('2d');
@@ -23,7 +28,13 @@ export default class Canvas {
         this.lastIndex = 0;
     }
 
-    // Add a click to the position arrays.
+    /**
+     * 
+     * @param {Number} mouseX - X position of the mouse click. 
+     * @param {Number} mouseY - Y poisition of the mouse click.
+     * @param {boolean} dragging - Line or point.
+     * @param {Object} tool - Details of the tool (see tool.js).
+     */
     addClick(mouseX, mouseY, dragging, tool) {
         if(mouseY >= this.height-50 || mouseX >= this.width-50) {
             this.newSizeNeeded();
@@ -45,6 +56,10 @@ export default class Canvas {
         }))
     }
 
+    /**
+     * Draw the saved points to the canvas context.
+     * @param {boolean} [drawAll] - Redraw all points instead of just the changes. 
+     */
     reDraw(drawAll) {
         let startIndex = drawAll ? 0 : this.lastIndex
         let mostRecentTool;
@@ -70,12 +85,18 @@ export default class Canvas {
 
     }
 
+    /**
+     * Determine if the canvas needs to enlarged.
+     */
     newSizeNeeded() {
         this.width = this.width * 1.5;
         this.height = this.height * 1.5;
         this.resize();
     }
 
+    /**
+     * Enlarge the canvas.
+     */
     resize() {
         this.context.canvas.width = this.width;
         this.context.canvas.height = this.height;
