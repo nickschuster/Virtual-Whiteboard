@@ -1,11 +1,13 @@
 import Menu from './menu.js'
+import Notif from './notify.js';
 import Room from './room.js'
 
-/** Starts the Room and UI class lifecycle. */
+/** Starts the app lifecycle. */
 window.onload = () => {
 
-    let menu = new Menu();
-    let room = new Room();
+    new Menu();
+    new Room();
+    Notif.init();
 
     // DONE:
         // Clean up UI - done
@@ -28,9 +30,7 @@ window.onload = () => {
         // Overflow scroll is broken
         // Ask question
             
-    // TODO:
-
-        // Be notified of question
+    // TODO:  
         // Hide/show question text  
 
         // Save a canvas as an image
@@ -46,6 +46,7 @@ window.onload = () => {
             // Add icons/fonts/positioning
             // Error box.
             // Logo for mobile.
+            // Be notified of actions in app.
 
         // About page for virtual-whiteboard
 

@@ -1,6 +1,7 @@
 import Canvas from './canvas.js';
 import { CREATE_EVENT, SWITCH_EVENT, CLIENT, HOST, RENAME_EVENT, DELETE_EVENT, QUESTION_EVENT } from "./events.js"
 import { Tool } from './tool.js'
+import Notif from "./notify.js"
 
 /** Represents the user controlling an App. */
 export default class App {
@@ -278,16 +279,6 @@ export default class App {
     }
 
     /**
-     * 
-     * @param {boolean} show - Whether or not to show the loading animation. 
-     * @param {String} [loadMessage] - If provided display a loading message.
-     */
-    load(show, loadMessage) {
-        $('#load').css('display', (show ? 'block' : 'none'));
-        $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
-    }
-
-    /**
      * Refresh the room list and re display all users.
      * @param {Array} roomList - An array of all users in the room.
      * @param {String} yourId - The current users room ID.
@@ -487,7 +478,7 @@ export default class App {
      */
     paste() {
         // Paste the saved selection at the new location.
-        this.load(true, "Pasting...");
+        Notif.load(true, "Pasting...");
         if(this.copyCoords && this.activeCanvas) {
             // Paste the most recent copy.
             let containerPos = $('#copypaste-container').offset()
@@ -509,7 +500,7 @@ export default class App {
 
             this.activeCanvas.reDraw()   
         }
-        this.load(false);
+        Notif.load(false);
     }
 
     /**

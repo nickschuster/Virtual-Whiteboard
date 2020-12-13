@@ -1,4 +1,5 @@
 import App from "./app.js"
+import Notif from "./notify.js"
 import { HOST, CLIENT, JOIN_EVENT, DRAW_EVENT, SWITCH_EVENT, CREATE_EVENT, RENAME_EVENT, DELETE_EVENT, HISTORY_EVENT, ROOM_EVENT, QUESTION_EVENT } from "./events.js"
 
 /** Class representing network interactions as a Room. */
@@ -26,15 +27,15 @@ export default class Room {
     joinRoom() {
         try {
             this.checkName()
-            this.load(true, "Looking up room (1/3)")
+            Notif.load(true, "Looking up room (1/3)")
             const serverIp = this.roomToIp(this.getRoomCode())
             const socket = this.createClientSocket(`ws://${serverIp}:3000`)
-            this.load(true, "Connecting... (2/3)")
+            Notif.load(true, "Connecting... (2/3)")
 
             this.socketSetup(socket, serverIp, CLIENT)
         } catch(e) {
-            this.load(false)
-            this.showError(e)
+            Notif.load(false)
+            Notif.error(e)
         }
     }
 
@@ -45,17 +46,16 @@ export default class Room {
         try {
             this.checkName()
             const creatorCode = this.getCreatorCode();
-            this.load(true, "Looking up creator code (1/4)")
+            Notif.load(true, "Looking up creator code (1/4)")
             const serverIp = await this.createServer(creatorCode);
-            console.log(serverIp)
-            this.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
+            Notif.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
             //const serverIp = '192.168.0.101'
             const socket = this.createHostSocket(`ws://${serverIp}:3000`)
 
             this.socketSetup(socket, serverIp, HOST)
         } catch(e) {
-            this.load(false)
-            this.showError(e)
+            Notif.load(false)
+            Notif.error(e)
         }
     }
 
@@ -119,24 +119,6 @@ export default class Room {
     }
 
     /**
-     * Display an error. 
-     * @param {String} e - The error message. 
-     */
-    showError(e) {
-        alert(e)
-    }
-
-    /**
-     * Control the loading animation.
-     * @param {boolean} show - Whether or not to show load. 
-     * @param {*} loadMessage - A loading message.
-     */
-    load(show, loadMessage) {
-        $('#load').css('display', (show ? 'block' : 'none'));
-        $('#load-message').css('display', (show ? 'block' : 'none')).text(loadMessage ? loadMessage : "");
-    }
-
-    /**
      * Get the creator code.
      * @return {String} - The creator code.
      */
@@ -150,7 +132,7 @@ export default class Room {
      * @return {String} - The IP of the created server/room.
      */
     async createServer(creatorCode) {
-        this.load(true, "Launching instance (2/4)")
+        Notif.load(true, "Launching instance (2/4)")
         let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
             method: 'POST',
             headers: {
@@ -188,8 +170,8 @@ export default class Room {
                 this.socketSetup(socket, serverIp, HOST)
                 socket.emit(HISTORY_EVENT)
             } catch (e) {
-                this.load(false)
-                this.showError(e)
+                Notif.load(false)
+                Notif.error(e)
             }   
             $("#reconnect-wrapper").hide();
             $( this ).off( event );
@@ -242,9 +224,9 @@ export default class Room {
                 // Save connection in case there is a service interuption.
                 this.saveConnection(serverIp)
     
-                this.load(true, "Connected. (4/4)")
+                Notif.load(true, "Connected. (4/4)")
     
-                this.load(false)
+                Notif.load(false)
                 this.showRoomCode(this.ipToRoom(serverIp))
                 
                 socket.emit(JOIN_EVENT, {type: HOST, name: this.nickname});
@@ -258,8 +240,8 @@ export default class Room {
         } else if(type == CLIENT) {
             socket.on('connect', () => {
                 this.deleteSavedConnection()
-                this.load(true, "Getting room history (3/3)")
-                this.load(false)
+                Notif.load(true, "Getting room history (3/3)")
+                Notif.load(false)
     
                 socket.emit(JOIN_EVENT, {type: CLIENT, name: this.nickname})
                 $("#login").css("display", "none")
@@ -269,8 +251,8 @@ export default class Room {
             })
     
             socket.on('connect_error', error => {
-                this.load(false)
-                alert("Could not connect to room: " + error)
+                Notif.load(false)
+                Notif.error("Error: Could not connect to room.")
             })
         }   
     }
