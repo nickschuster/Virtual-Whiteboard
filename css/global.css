@@ -365,13 +365,12 @@ button, input[type='color'], input[type='range'] {
     display: none;
     position: absolute;
     z-index: 1500;
-    border: 1px solid black;
     text-align: center;
     top: 50%;
     left: 50%;
     min-width: 200px;
     max-width: 250px;
-    height: 50px;
+    overflow: hidden;
 }
 
 .question-icon {
@@ -380,10 +379,10 @@ button, input[type='color'], input[type='range'] {
 }
 
 .dismiss-question {
+    display: block;
     position: relative;
-    margin: 0;
-    left: 50%;
-    transform: translate(-50%);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #jump-question {
@@ -412,4 +411,9 @@ button, input[type='color'], input[type='range'] {
 
 .notif.error {
     color: #8b0000;
+}
+
+#download-canvas {
+    display: block;
+    padding: 20px;
 }

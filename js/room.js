@@ -47,9 +47,9 @@ export default class Room {
             this.checkName()
             const creatorCode = this.getCreatorCode();
             Notif.load(true, "Looking up creator code (1/4)")
-            const serverIp = await this.createServer(creatorCode);
+            // const serverIp = await this.createServer(creatorCode);
             Notif.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
-            //const serverIp = '192.168.0.101'
+            const serverIp = '192.168.0.101'
             const socket = this.createHostSocket(`ws://${serverIp}:3000`)
 
             this.socketSetup(socket, serverIp, HOST)

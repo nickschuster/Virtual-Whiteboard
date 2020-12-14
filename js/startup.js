@@ -31,10 +31,6 @@ window.onload = () => {
         // Ask question
             
     // TODO:  
-        // Hide/show question text  
-
-        // Save a canvas as an image
-
         // Smooth drawing
         // Revisit copy paste
         // Revisit draw controls
@@ -47,10 +43,13 @@ window.onload = () => {
             // Error box.
             // Logo for mobile.
             // Be notified of actions in app.
+            // Animation for hiding question text.
 
         // About page for virtual-whiteboard
 
         // Implement better creator code detection and authorization
 
         // Tls/DNS for rooms?
+        // Donwload all canvases?
+        // Mute and kick from room?
 }

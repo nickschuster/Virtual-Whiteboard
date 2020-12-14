@@ -351,18 +351,18 @@ export default class App {
                 $(`[questionid="${question.questionId}"]`).css("display", "none")
             }
         })
-        $(".dismiss-question").css("display", this.type === HOST ? "block" : "none")
     }
 
     /**
      * Notify the host that a question was asked.
      */
     notifiyQuestion() {
-        if(this.questions.length > 0) {
-            $("#jump-question").show()
-            // TODO
-        } else {
-            $("#jump-question").hide()
+        if(this.type === HOST) {
+            if(this.questions.length > 0) {
+                $("#jump-question").show()
+            } else {
+                $("#jump-question").hide()
+            }
         }
     }
 
@@ -378,7 +378,7 @@ export default class App {
                 deleteIndex = i
             }      
         }
-        this.questions.splice(deleteIndex)
+        this.questions.splice(deleteIndex, 1)
         $(`[questionid="${toDelete}"]`).remove()
         this.notifiyQuestion()
     }
@@ -660,6 +660,8 @@ export default class App {
      */
     ask() {
         if(this.activeCanvas) {
+            $('#question-container').css("top", `50%`)
+            $('#question-container').css("left", `50%`)
             $("#question-container").toggle()
             // Ask and cancel listeners.
             $("#ask").on('click', event => {
@@ -720,6 +722,49 @@ export default class App {
     }
 
     /**
+     * Toggle the displaying of a questions text.
+     * @param {Event} event - Event that caused the toggle. 
+     */
+    toggleShowQuestion(event) {
+        let container = event.target.parentNode
+        if(container.querySelector("#question-input") == null) {
+            if(container.style.height == "60px") {
+                container.style.height = "auto"
+            } else {
+                container.style.height = "60px"
+            }
+        } 
+    }
+
+    /**
+     * Take all canvases, convert them to images, download them to the users device.
+     */
+    async download() {
+        try {
+            let originalContext = this.activeCanvas.context
+            let copyCanvas = document.createElement("canvas")
+            copyCanvas.width = originalContext.canvas.width
+            copyCanvas.height = originalContext.canvas.height
+
+            let copyContext = copyCanvas.getContext("2d")
+            copyContext.drawImage(originalContext.canvas, 0, 0)
+            copyContext.globalAlpha = 1;
+            copyContext.setTransform(1, 0, 0, 1, 0, 0);
+            copyContext.filter = "none";
+            copyContext.globalCompositeOperation = "destination-over";
+            copyContext.fillStyle = "#ececec";
+            copyContext.fillRect(0, 0, copyContext.canvas.width, copyContext.canvas.height);
+
+            var link = document.getElementById('download-link');
+            link.setAttribute('download', $(`button#${this.activeCanvas.canvasId}`).text().replace(" ", "-") + ".png");
+            link.setAttribute('href', copyContext.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
+            link.click()
+        } catch(e) {
+            Notif.error("Error: Could not download whiteboard.")
+        }
+    }
+
+    /**
      * Sets up the document event delegators for each type of event group.
      */
     documentListeners() {
@@ -728,6 +773,18 @@ export default class App {
         $(document).on("click", event => {
             if(event.target.matches(".switch-canvas")) {
                 this.switchCanvas(event)
+            }
+
+            if(event.target.matches(".dismiss-question")) {
+                this.removeQuestion(event)
+            }
+
+            if(event.target.matches(".question-icon")) {
+                this.toggleShowQuestion(event)
+            }
+
+            if(event.target.matches("#download")) {
+                this.download()
             }
 
             if(this.type === HOST) {
@@ -757,10 +814,6 @@ export default class App {
 
                 if(event.target.matches(".delete-canvas")) {
                     this.delete(event)
-                }
-
-                if(event.target.matches(".dismiss-question")) {
-                    this.removeQuestion(event)
                 }
 
                 if(event.target.matches("#next-question")) {
@@ -794,6 +847,10 @@ export default class App {
                     }
                 }
             } else if(this.type === CLIENT) {
+                if(event.target.matches("div.question-icon")) {
+                    this.startQuestionMovement(event)
+                }
+
                 if(event.target.matches("#question-container")) {
                     this.startQuestionMovement(event)
                 }
@@ -815,9 +872,7 @@ export default class App {
                     }
                 }
             } else if(this.type === CLIENT) {
-                if(event.target.matches("#question-container")) {
-                    this.controlQuestionMovement(event)
-                }
+                this.controlQuestionMovement(event)
             }
         })
 
