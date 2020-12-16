@@ -37,6 +37,8 @@ export default class App {
         // Copy paste location information.
         this.cpLeft = 0;
         this.cpTop = 0;
+        this.cpFlipX = 1;
+        this.cpFlipY = 1;
         this.moveCp = false;
         this.resizeCp = false;
 
@@ -195,7 +197,8 @@ export default class App {
 
         this.paint = true;
         this.activeCanvas.addClick(paintX, paintY, false, this.activeTool);
-        this.activeCanvas.reDraw();
+
+        requestAnimationFrame(() => this.activeCanvas.reDraw())
     }
 
     /**
@@ -210,7 +213,8 @@ export default class App {
                  + $('#canvas-container').scrollTop());
 
             this.activeCanvas.addClick(paintX, paintY, true, this.activeTool);
-            this.activeCanvas.reDraw();
+
+            requestAnimationFrame(() => this.activeCanvas.reDraw())
         }
     }
 
@@ -403,9 +407,9 @@ export default class App {
      * Display the copypaste control interface. 
      */
     showCopyPaste() {
-        $('#copypaste-container').toggle();
-        $('#copypaste-container').css("top", '50%')
-        $('#copypaste-container').css("left", '50%')
+        $('#copypaste-wrapper').toggle();
+        $('#copypaste-wrapper').css("top", '50%')
+        $('#copypaste-wrapper').css("left", '50%')
     }
 
     /**
@@ -628,30 +632,58 @@ export default class App {
         // Calculate difference between last two events. Add that to the current value 
         // (dimensions or location) update the element accrodingly. Do for either mouse 
         // event or touch event.
-        if(this.resizeCp) {
-            let resizeX = (event.clientX ? event.clientX : event.touches[0].clientX)
-                - this.cpLeft + $('#copypaste-container').width()
-            let resizeY = (event.clientY ? event.clientY : event.touches[0].clientY) 
-                - this.cpTop + $('#copypaste-container').height()
+        if(event.clientX || event.touches) {
+            let eventY = (event.clientY ? event.clientY : event.touches[0].clientY) 
+            let eventX = (event.clientX ? event.clientX : event.touches[0].clientX)
 
-            this.cpLeft = (event.clientX ? event.clientX : event.touches[0].clientX)
-            this.cpTop = (event.clientY ? event.clientY : event.touches[0].clientY)
+            if(this.resizeCp) {
+                let resizeX = eventX - this.cpLeft + $('#copypaste-container').width()
+                let resizeY = eventY - this.cpTop + $('#copypaste-container').height()
 
-            $('#copypaste-container').height(resizeY + 'px')
-            $('#copypaste-container').width(resizeX + 'px')
+                this.cpLeft = eventX
+                this.cpTop = eventY
 
-        } else if(this.moveCp) {
-            let containerPos = $('#copypaste-container').offset()
-            let moveX = ((event.clientX ? event.clientX : event.touches[0].clientX) 
-                - this.cpLeft) + containerPos.left
-            let moveY = ((event.clientY ? event.clientY : event.touches[0].clientY) 
-                - this.cpTop) + containerPos.top
+                let flipped = false
 
-            this.cpLeft = (event.clientX ? event.clientX : event.touches[0].clientX)
-            this.cpTop = (event.clientY ? event.clientY : event.touches[0].clientY) 
-            
-            $('#copypaste-container').css("top", `${moveY}px`)
-            $('#copypaste-container').css("left", `${moveX}px`)
+                if(resizeX < 0) {
+                    this.cpFlipX = -1
+                    flipped = true
+                }
+
+                if(resizeY < 0) {
+                    this.cpFlipY = -1
+                    flipped = true
+                }
+
+                if(resizeX > 0) {
+                    this.cpFlipX = 1
+                    flipped = true
+                }
+
+                if(resizeY > 0) {
+                    this.cpFlipY = 1
+                    flipped = true
+                }
+
+                if(flipped) {
+                    $('#copypaste-container').css("transform", `scale(${this.cpFlipX}, ${this.cpFlipY})`)
+                    $('#copypaste-buttons').css("transform", "scale(1, 1)")
+                }
+
+                $('#copypaste-container').height(Math.abs(resizeY) + 'px')
+                $('#copypaste-container').width(Math.abs(resizeX) + 'px')
+
+            } else if(this.moveCp) {
+                let containerPos = $('#copypaste-wrapper').offset()
+                let moveX = (eventX - this.cpLeft) + containerPos.left
+                let moveY = (eventY - this.cpTop) + containerPos.top
+
+                this.cpLeft = eventX
+                this.cpTop = eventY
+                
+                $('#copypaste-wrapper').css("top", `${moveY}px`)
+                $('#copypaste-wrapper').css("left", `${moveX}px`)
+            }
         }
     }
 
@@ -737,7 +769,7 @@ export default class App {
     }
 
     /**
-     * Take all canvases, convert them to images, download them to the users device.
+     * Take the currently active canvas, convert it to an image and download to the users device.
      */
     async download() {
         try {
@@ -833,6 +865,10 @@ export default class App {
             }
 
             if(this.type === HOST) {
+                if(event.target.matches("#copypaste-wrapper")) {
+                    this.startCopyPasteMovement(event)
+                }
+
                 if(event.target.matches("#copypaste-container")) {
                     this.startCopyPasteMovement(event)
                 }

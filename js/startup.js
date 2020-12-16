@@ -31,10 +31,8 @@ window.onload = () => {
         // Ask question
             
     // TODO:  
-        // Smooth drawing
         // Revisit copy paste
         // Revisit draw controls
-        // Dismiss questions?
 
         // UI / Mobile 
             // Highlight the current HOST canvas.
