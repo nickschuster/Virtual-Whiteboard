@@ -6,7 +6,9 @@ export let Tool = {
         globalAlpha: 1,
         globalCompositeOperation: 'source-over',
         lineJoin: 'round',
-        lineCap: 'round'
+        lineCap: 'round',
+        size: true,
+        color: true
     },
     erase: {
         lineWidth: 5,
@@ -14,7 +16,9 @@ export let Tool = {
         globalAlpha: 1,
         globalCompositeOperation: 'destination-out',
         lineJoin: 'round',
-        lineCap: 'round'
+        lineCap: 'round',
+        size: true,
+        color: false
 
     },
     highlight: {
@@ -22,6 +26,8 @@ export let Tool = {
         strokeStyle: '#ffff00',
         globalCompositeOperation: "multiply",
         lineJoin: 'round',
-        lineCap: 'round'
+        lineCap: 'round',
+        size: true,
+        color: false
     }
 }

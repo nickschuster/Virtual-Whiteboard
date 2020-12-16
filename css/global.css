@@ -244,7 +244,6 @@ button, input[type='color'], input[type='range'] {
     top: 50%;
     left: 50%;
     z-index: 1010;
-    border: 1px solid black;
 }
 
 #copypaste-container {
@@ -252,6 +251,8 @@ button, input[type='color'], input[type='range'] {
     height: 100px;
     border: 2px dotted blue;
     z-index: 1000;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #copypaste-container:hover {
@@ -263,7 +264,8 @@ button, input[type='color'], input[type='range'] {
     position: relative;
     z-index: 1050;
     left: 50%;
-    margin-left: -86px;
+    margin-left: -88px;
+    margin-bottom: 5px;
     width: auto;
 }
 

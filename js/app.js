@@ -37,10 +37,9 @@ export default class App {
         // Copy paste location information.
         this.cpLeft = 0;
         this.cpTop = 0;
-        this.cpFlipX = 1;
-        this.cpFlipY = 1;
         this.moveCp = false;
         this.resizeCp = false;
+        this.canResize = true;
 
         // Current copy content.
         this.copyCoords = []
@@ -232,8 +231,24 @@ export default class App {
     switchTool(event) {
         if(this.activeCanvas) {
             this.activeTool = Tool[event.target.id]
-            $('#tool-size').val(this.activeTool.lineWidth)
             $('#tool-color').val(this.activeTool.strokeStyle)
+            $('#tool-size').val(this.activeTool.lineWidth)
+            if(this.activeTool.color && this.activeTool.size) {
+                $('#tool-size').prop("disabled", false)
+                $('#tool-size').css("cursor", "pointer");
+                $('#tool-color').prop("disabled", false)
+                $('#tool-color').css("cursor", "pointer");
+            } else if(this.activeTool.color) {
+                $('#tool-color').prop("disabled", false)
+                $('#tool-size').css("cursor", "pointer");
+                $('#tool-size').prop("disabled", true)
+                $('#tool-color').css("cursor", "not-allowed");
+            } else if(this.activeTool.size) {
+                $('#tool-size').prop("disabled", false)
+                $('#tool-size').css("cursor", "pointer");
+                $('#tool-color').prop("disabled", true)
+                $('#tool-color').css("cursor", "not-allowed");
+            }
         }
     }
 
@@ -439,6 +454,9 @@ export default class App {
     copy() {
         // Copy whatever is in the selection.
         if(this.activeCanvas) {
+            // Stop resize.
+            this.canResize = false;
+
             // Copy the drawing inside the outline.
             let containerPos = $('#copypaste-container').offset()
             let minX = containerPos.left + $('#canvas-container').scrollLeft()
@@ -483,6 +501,7 @@ export default class App {
     paste() {
         // Paste the saved selection at the new location.
         Notif.load(true, "Pasting...");
+        this.canResize = true;
         if(this.copyCoords && this.activeCanvas) {
             // Paste the most recent copy.
             let containerPos = $('#copypaste-container').offset()
@@ -636,42 +655,15 @@ export default class App {
             let eventY = (event.clientY ? event.clientY : event.touches[0].clientY) 
             let eventX = (event.clientX ? event.clientX : event.touches[0].clientX)
 
-            if(this.resizeCp) {
+            if(this.resizeCp && this.canResize) {
                 let resizeX = eventX - this.cpLeft + $('#copypaste-container').width()
                 let resizeY = eventY - this.cpTop + $('#copypaste-container').height()
 
                 this.cpLeft = eventX
                 this.cpTop = eventY
 
-                let flipped = false
-
-                if(resizeX < 0) {
-                    this.cpFlipX = -1
-                    flipped = true
-                }
-
-                if(resizeY < 0) {
-                    this.cpFlipY = -1
-                    flipped = true
-                }
-
-                if(resizeX > 0) {
-                    this.cpFlipX = 1
-                    flipped = true
-                }
-
-                if(resizeY > 0) {
-                    this.cpFlipY = 1
-                    flipped = true
-                }
-
-                if(flipped) {
-                    $('#copypaste-container').css("transform", `scale(${this.cpFlipX}, ${this.cpFlipY})`)
-                    $('#copypaste-buttons').css("transform", "scale(1, 1)")
-                }
-
-                $('#copypaste-container').height(Math.abs(resizeY) + 'px')
-                $('#copypaste-container').width(Math.abs(resizeX) + 'px')
+                $('#copypaste-container').height(resizeY + 'px')
+                $('#copypaste-container').width(resizeX + 'px')
 
             } else if(this.moveCp) {
                 let containerPos = $('#copypaste-wrapper').offset()

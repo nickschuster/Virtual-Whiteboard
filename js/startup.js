@@ -31,9 +31,6 @@ window.onload = () => {
         // Ask question
             
     // TODO:  
-        // Revisit copy paste
-        // Revisit draw controls
-
         // UI / Mobile 
             // Highlight the current HOST canvas.
             // Highlight where there is a question.
@@ -48,6 +45,4 @@ window.onload = () => {
         // Implement better creator code detection and authorization
 
         // Tls/DNS for rooms?
-        // Donwload all canvases?
-        // Mute and kick from room?
 }
