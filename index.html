@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#ffffff" />
     <link rel="apple-touch-icon" href="./logo192.png" />
     <link rel="manifest" href="./manifest.json" />
+    <link rel="stylesheet" type="text/css" href="./css/normalize.css" />
     <link rel="stylesheet" type="text/css" href="./css/global.css" />
     <script type="module" src="./js/startup.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -16,7 +17,11 @@
     <script
 		    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
 			  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-			  crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
+        
+    <!-- Fonts. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Chilanka">
   </head>
 
   <!-- Body... -->
@@ -42,8 +47,8 @@
       <hr>
       <input id="rename-name" type="text" placeholder="New canvas name..."/>
       <br>
-      <button id="rename">Rename</button>
-      <button id="cancel-rename">Cancel</button>
+      <button id="rename" class="popup-button">Rename</button>
+      <button id="cancel-rename" class="popup-button">Cancel</button>
     </div>
 
     <!-- Canvas delete popup -->
@@ -51,8 +56,8 @@
       <h3 class="popup-title">Delete <span id="canvas-name-delete"></span>?</h3>
       <hr>
       <p id="delete-warning">Warning! This cannot be undone.</p>
-      <button id="delete">Delete</button>
-      <button id="cancel-delete">Cancel</button>
+      <button id="delete" class="popup-button">Delete</button>
+      <button id="cancel-delete" class="popup-button">Cancel</button>
     </div>
     
     <!-- Copy & Paste element -->
@@ -73,8 +78,8 @@
       <input id="question-input" type="text">
       <br>
       <br>
-      <button id="ask">Ask</button>
-      <button id="cancel-ask">Cancel</button>
+      <button id="ask" class="popup-button">Ask</button>
+      <button id="cancel-ask" class="popup-button">Cancel</button>
     </div>
 
     <!-- Showing a question box. -->
@@ -129,8 +134,7 @@
 
           <div id="button-container">
             <button id="create-canvas">Create a new Whiteboard</button>
-            <br/>
-            <br/>
+
           </div>
 
           <div id="ask-question-container">
@@ -138,14 +142,14 @@
           </div>
 
           <div id="tool-container">
-            <button class="tool" id="draw">Draw</button><br />
-            <button class="tool" id="erase">Erase</button><br />
-            <button class="tool" id="highlight">Highlight</button><br />
-            <button id="copypaste">Copy & Paste</button><br />
-            <label for="tool-size">Size: </label>
+            <button class="tool" id="draw">Draw</button>
+            <button class="tool" id="erase">Erase</button>
+            <button class="tool" id="highlight">Highlight</button>
+            <button id="copypaste">Copy & Paste</button>
+            <p id="size">Size: </p>
             <input type="range" min="1" max="100" value="1" class="slider" id="tool-size"><br/>
-            <label for="tool-color">Color: </label>
-            <input type="color" id="tool-color" name="favcolor" value="#ffffff">
+            <p id="color">Color: </p>
+            <input type="color" id="tool-color" name="favcolor" value="#ffffff" class="color">
           </div>
 
           <br>

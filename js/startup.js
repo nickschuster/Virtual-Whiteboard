@@ -34,15 +34,17 @@ window.onload = () => {
         // UI / Mobile 
             // Highlight the current HOST canvas.
             // Highlight where there is a question.
-            // Add icons/fonts/positioning
-            // Error box.
             // Logo for mobile.
-            // Be notified of actions in app.
-            // Animation for hiding question text.
+            // More error messages
 
         // About page for virtual-whiteboard
 
         // Implement better creator code detection and authorization
 
         // Tls/DNS for rooms?
+
+        // BUGS:
+        //   Can edit and delete at same time.
+        //   Reconnect with name error?
+        //   Hide question off a little.
 }
