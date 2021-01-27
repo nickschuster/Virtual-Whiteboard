@@ -47,9 +47,9 @@ export default class Room {
             this.checkName()
             const creatorCode = this.getCreatorCode();
             Notif.load(true, "Looking up creator code (1/4)")
-            // const serverIp = await this.createServer(creatorCode);
+            const serverIp = await this.createServer(creatorCode);
             Notif.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
-            const serverIp = '192.168.0.101'
+            // const serverIp = '192.168.0.101'
             const socket = this.createHostSocket(`ws://${serverIp}:3000`)
 
             this.socketSetup(socket, serverIp, HOST)
@@ -160,7 +160,10 @@ export default class Room {
      * Reconnect a host to a disconnected room
      */
     reconnect() {
-        let serverIp = document.cookie.split("=")[1]
+        let cookies = document.cookie.split(' ');
+        let serverIp = cookies[0].split("=")[1].replace(';', '');
+        let name = cookies[1].split('=')[1].replace(';', '');
+        $('#nickname').val(name);
         $("#room-code-disconnect").text(this.ipToRoom(serverIp))
         $("#reconnect-wrapper").show();
         $("#reconnect").on("click", event => {
@@ -188,9 +191,11 @@ export default class Room {
      * @param {String} serverIp 
      */
     saveConnection(serverIp) {
-        var date = new Date();
+        let date = new Date();
+        let name = $('#nickname').val()
         date.setTime(date.getTime()+(5*60*1000))
-        document.cookie = "serverIp="+serverIp+"; expires="+date.toGMTString()
+        document.cookie = `serverIp=${serverIp};`;
+        document.cookie = `nickname=${(name === '' ? '...' : name)};` 
     }
 
     /**
@@ -198,7 +203,8 @@ export default class Room {
      */
     deleteSavedConnection() {
         let date = new Date();
-        document.cookie = "serverIp=;" +"expires="+date.toGMTString()
+        document.cookie = ("serverIp=;" +"expires="+date.toGMTString())
+        document.cookie = ("name=;" +"expires="+date.toGMTString())
     }
 
     /**

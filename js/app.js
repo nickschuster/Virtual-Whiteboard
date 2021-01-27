@@ -533,6 +533,7 @@ export default class App {
     rename(event) {
         let canvasId = event.target.id
         $("#rename-canvas").show().css("display", "inline-block");;
+        $("#delete-canvas").hide();
         $("#canvas-name-rename").text($(`button#${canvasId}`).text());
 
         $("#rename").on("click", event => {
@@ -569,6 +570,7 @@ export default class App {
     delete(event) {
         let canvasId = event.target.id;
         $("#delete-canvas").show().css("display", "inline-block");
+        $("#rename-canvas").hide();
         $("#canvas-name-delete").text($(`button#${canvasId}`).text());
 
         $("#delete").on("click", event => {
@@ -752,10 +754,10 @@ export default class App {
     toggleShowQuestion(event) {
         let container = event.target.parentNode
         if(container.querySelector("#question-input") == null) {
-            if(container.style.height == "60px") {
+            if(container.style.height == "50px") {
                 container.style.height = "auto"
             } else {
-                container.style.height = "60px"
+                container.style.height = "0px"
             }
         } 
     }
