@@ -757,7 +757,7 @@ export default class App {
             if(container.style.height == "50px") {
                 container.style.height = "auto"
             } else {
-                container.style.height = "0px"
+                container.style.height = "50px"
             }
         } 
     }
