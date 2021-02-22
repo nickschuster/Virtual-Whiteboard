@@ -49,7 +49,6 @@ export default class Room {
             Notif.load(true, "Looking up creator code (1/4)")
             const serverIp = await this.createServer(creatorCode);
             Notif.load(true, "Connecting... (may take up to 90 seconds) (3/4)")
-            // const serverIp = '192.168.0.101'
             const socket = this.createHostSocket(`ws://${serverIp}:3000`)
 
             this.socketSetup(socket, serverIp, HOST)
@@ -133,12 +132,12 @@ export default class Room {
      */
     async createServer(creatorCode) {
         Notif.load(true, "Launching instance (2/4)")
-        let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/createRoom", {
+        let response = await fetch("https://n4x7cjm3ul.execute-api.us-east-1.amazonaws.com/production/virtual-whiteboard-action", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ code: creatorCode })
+            body: JSON.stringify({ code: creatorCode, action: 'createRoom' })
         })
         if(!response.ok) throw new Error(await response.text())
         let publicIp = await response.text()

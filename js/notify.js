@@ -37,6 +37,7 @@ const Notif = {
         setTimeout(() => {
             $("#notification-container").removeClass("error")
             $("#notification-container").removeClass("open")
+            $("#notification-container").text("")
         }, (time ? time : 3500))
     }
 }
